@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Single-drone PX4 SITL + Gazebo + Mid360 environment.
+         Base: tunnel_simulation/tunnel_mid360.launch (XTDrone single-vehicle pattern).
+         Defaults: tunnel world, spawn (0, 7.5, 0.5), yaw 0. -->
+    <arg name="est" default="ekf2"/>
+    <arg name="world" default="$(find sim_env)/worlds/non_degenerate_control_tunnel.world"/>
+    <!-- gazebo configs -->
+    <arg name="gui" default="true"/>
+    <arg name="debug" default="false"/>
+    <arg name="verbose" default="false"/>
+    <arg name="paused" default="false"/>
+    <!-- vehicle spawn pose -->
+    <arg name="x" default="0"/>
+    <arg name="y" default="7.5"/>
+    <arg name="z" default="0.5"/>
+    <arg name="R" default="0"/>
+    <arg name="P" default="0"/>
+    <arg name="Y" default="0"/>
+    <!-- Gazebo sim -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="world_name" value="$(arg world)"/>
+        <arg name="debug" value="$(arg debug)"/>
+        <arg name="verbose" value="$(arg verbose)"/>
+        <arg name="paused" value="$(arg paused)"/>
+    </include>
+    <!-- static TF: base_link -> imu_link_stereo = (0, 0, 0.25), identity rotation.
+         The imu_gazebo model publishes /iris_0/imu_gazebo with frame_id imu_link_stereo;
+         this fills the missing frame in the TF tree (see Mid360_FASTLIO2_检查修改与回退记录.md section 4.6). -->
+    <node pkg="tf" type="static_transform_publisher" name="base_to_imu_link_stereo"
+          args="0 0 0.25 0 0 0 base_link imu_link_stereo 100"/>
+    <!-- iris_0 -->
+    <group ns="iris_0">
+        <!-- MAVROS and vehicle configs -->
+        <arg name="ID" value="0"/>
+        <arg name="ID_in_group" value="0"/>
+        <arg name="fcu_url" default="udp://:24540@localhost:34580"/>
+        <!-- PX4 SITL and vehicle spawn -->
+        <include file="$(find px4)/launch/single_vehicle_spawn_xtd.launch">
+            <arg name="x" value="$(arg x)"/>
+            <arg name="y" value="$(arg y)"/>
+            <arg name="z" value="$(arg z)"/>
+            <arg name="R" value="$(arg R)"/>
+            <arg name="P" value="$(arg P)"/>
+            <arg name="Y" value="$(arg Y)"/>
+            <arg name="vehicle" value="iris"/>
+            <arg name="sdf" value="iris_mid360"/>
+            <arg name="mavlink_udp_port" value="18570"/>
+            <arg name="mavlink_tcp_port" value="4560"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <!-- MAVROS -->
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+
+</launch>

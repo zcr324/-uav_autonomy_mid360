@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>bridge</name>
+  <version>0.0.1</version>
+  <description>Honest LIO-to-PX4/planner bridge: transforms LIO odometry (camera_init frame) to global map frame via one-shot alignment params (no Gazebo ground truth), and forwards planner PositionCommand to the XTDrone command chain.</description>
+  <maintainer email="zcr@todo.todo">zcr</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rospy</build_depend>
+  <build_depend>quadrotor_msgs</build_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>quadrotor_msgs</exec_depend>
+  <exec_depend>mavros_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>tf</exec_depend>
+</package>

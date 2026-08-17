@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- LIO <-> PX4/planner bridge.
+         Usage:
+           stage A (mapping, PGO 前):  roslaunch bridge bridge.launch
+           stage B (reloc, PGO 后):    roslaunch bridge bridge.launch use_reloc:=true
+         Init params per world:
+           tunnel world spawn (0, 7.5, 0.5)  -> 默认值
+           jiong3  world spawn (0, 0, 0.5)   ->  init_y:=0 -->
+    <arg name="drone_id" default="0"/>
+    <arg name="use_reloc" default="false"/>
+    <arg name="init_x" default="0.0"/>
+    <arg name="init_y" default="7.5"/>
+    <arg name="init_z" default="0.5"/>
+    <arg name="init_yaw" default="0.0"/>
+    <arg name="output" default="xtdrone"/>
+    <arg name="enu_to_ned" default="true"/>
+
+    <node pkg="bridge" type="lio_transfer.py" name="lio_transfer" output="screen">
+        <param name="drone_id" value="$(arg drone_id)"/>
+        <param name="use_reloc" value="$(arg use_reloc)"/>
+        <param name="init_x" value="$(arg init_x)"/>
+        <param name="init_y" value="$(arg init_y)"/>
+        <param name="init_z" value="$(arg init_z)"/>
+        <param name="init_yaw" value="$(arg init_yaw)"/>
+    </node>
+
+    <node pkg="bridge" type="control_transfer.py" name="control_transfer" output="screen">
+        <param name="drone_id" value="$(arg drone_id)"/>
+        <param name="output" value="$(arg output)"/>
+        <param name="enu_to_ned" value="$(arg enu_to_ned)"/>
+    </node>
+</launch>

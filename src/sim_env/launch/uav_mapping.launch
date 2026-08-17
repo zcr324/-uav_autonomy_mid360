@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 建图会话：单机仿真 + LTA-OM FAST_LIO 前端（iris_0 命名空间）。
+         fast_lio 全局话题 -> /iris_0/aft_mapped_to_init、/iris_0/cloud_registered
+         用法：
+           roslaunch sim_env uav_mapping.launch                    # 隧道世界
+           roslaunch sim_env uav_mapping.launch world:=jiong3      # jiong3 世界（回环验证用）
+           roslaunch sim_env uav_mapping.launch multisession_mode:=2   # 保存先验（M3/M4）-->
+    <arg name="world" default="tunnel"/>
+    <arg name="rviz" default="true"/>
+    <arg name="multisession_mode" default="0"/>
+
+    <group if="$(eval arg('world') == 'jiong3')">
+        <include file="$(find sim_env)/launch/jiong3_single.launch"/>
+    </group>
+    <group unless="$(eval arg('world') == 'jiong3')">
+        <include file="$(find sim_env)/launch/uav_single.launch"/>
+    </group>
+
+    <!-- LTA-OM FAST_LIO 前端，挂 iris_0 命名空间 -->
+    <group ns="iris_0">
+        <include file="$(find fast_lio)/launch/mapping_mid360.launch">
+            <arg name="rviz" value="$(arg rviz)"/>
+            <arg name="multisession_mode" value="$(arg multisession_mode)"/>
+        </include>
+    </group>
+</launch>

@@ -1,0 +1,29 @@
+# 构建产物
+build/
+devel/
+install/
+logs/
+
+# 日志与临时文件
+*.log
+*.ulg
+__pycache__/
+*.pyc
+.vscode/
+*.backup_*
+
+# 外部依赖仓库（由 tools/setup_deps.sh 拉取）
+repos/
+
+# ego-planner 包符号链接
+src/planning/
+src/plan_env
+src/path_searching
+src/bspline_opt
+src/traj_utils
+src/plan_manage
+src/quadrotor_msgs
+
+# LIO 运行期产物（PCD/日志）
+src/lio/FAST_LIO/Log/
+*.pcd

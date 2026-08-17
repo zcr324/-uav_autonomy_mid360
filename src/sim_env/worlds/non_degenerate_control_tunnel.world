@@ -1,0 +1,966 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="connected_branch_corridor_world">
+    <physics type="ode">
+      <real_time_update_rate>1000</real_time_update_rate>
+      <max_step_size>0.001</max_step_size>
+    </physics>
+
+    <scene>
+      <ambient>0.45 0.45 0.45 1</ambient>
+      <background>0.70 0.78 0.86 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!--
+      Corridor definition:
+      - All corridor inner width: 3 m
+      - Wall height: 2 m
+      - Ceiling bottom: z = 2.0 m
+      - Main road: (0,0,0) to (100,0,0), direction +X
+      - Left branches: +Y direction at x=20 and x=85
+      - Right branch UAV route centerline: (0,0,1) -> (60,0,1) -> (60,-15,1) -> (69,-15,1) -> (69,-25,1)
+      - Green route-marker spheres have been removed.
+      - Wall and ceiling boxes are generated from the connected corridor footprint so the right branch and turns are closed cleanly.
+    -->
+
+    <model name="large_ground_plane">
+      <static>true</static>
+      <pose>50 0 -0.01 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>300 200 0.02</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>300 200 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.35 0.35 0.35 1</ambient>
+            <diffuse>0.35 0.35 0.35 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_01">
+      <static>true</static>
+      <pose>69 -20.75 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>3 8.5 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_01">
+      <static>true</static>
+      <pose>69 -20.75 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>3 8.5 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>3 8.5 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_02">
+      <static>true</static>
+      <pose>64.5 -15.75 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>12 1.5 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_02">
+      <static>true</static>
+      <pose>64.5 -15.75 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>12 1.5 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>12 1.5 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_03">
+      <static>true</static>
+      <pose>64.5 -14.25 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>12 1.5 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_03">
+      <static>true</static>
+      <pose>64.5 -14.25 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>12 1.5 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>12 1.5 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_04">
+      <static>true</static>
+      <pose>60 -7.5 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>3 12 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_04">
+      <static>true</static>
+      <pose>60 -7.5 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>3 12 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>3 12 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_05">
+      <static>true</static>
+      <pose>50 -0.75 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>100 1.5 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_05">
+      <static>true</static>
+      <pose>50 -0.75 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>100 1.5 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>100 1.5 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_06">
+      <static>true</static>
+      <pose>50 0.75 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>100 1.5 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_06">
+      <static>true</static>
+      <pose>50 0.75 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>100 1.5 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>100 1.5 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_07">
+      <static>true</static>
+      <pose>20 4.75 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>3 6.5 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_07">
+      <static>true</static>
+      <pose>20 4.75 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>3 6.5 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>3 6.5 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_08">
+      <static>true</static>
+      <pose>85 4.75 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>3 6.5 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_08">
+      <static>true</static>
+      <pose>85 4.75 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>3 6.5 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>3 6.5 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_09">
+      <static>true</static>
+      <pose>85 10.75 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>3 5.5 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_09">
+      <static>true</static>
+      <pose>85 10.75 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>3 5.5 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>3 5.5 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_10">
+      <static>true</static>
+      <pose>80.75 15 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>11.5 3 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_10">
+      <static>true</static>
+      <pose>80.75 15 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>11.5 3 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>11.5 3 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_floor_11">
+      <static>true</static>
+      <pose>85 23.25 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>3 13.5 0.02</size></box>
+          </geometry>
+          <material>
+            <ambient>0.11 0.11 0.11 1</ambient>
+            <diffuse>0.18 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="corridor_ceiling_11">
+      <static>true</static>
+      <pose>85 23.25 2.05 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>3 13.5 0.1</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>3 13.5 0.1</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_01_south">
+      <static>true</static>
+      <pose>63 -16.6 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>9 0.2 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>9 0.2 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_02_north">
+      <static>true</static>
+      <pose>66 -13.4 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>9 0.2 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>9 0.2 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_03_south">
+      <static>true</static>
+      <pose>29.25 -1.6 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>58.5 0.2 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>58.5 0.2 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_04_south">
+      <static>true</static>
+      <pose>80.75 -1.6 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>38.5 0.2 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>38.5 0.2 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_05_north">
+      <static>true</static>
+      <pose>9.25 1.6 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>18.5 0.2 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>18.5 0.2 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_06_north">
+      <static>true</static>
+      <pose>52.5 1.6 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>62 0.2 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>62 0.2 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_07_north">
+      <static>true</static>
+      <pose>93.25 1.6 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>13.5 0.2 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>13.5 0.2 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_08_south">
+      <static>true</static>
+      <pose>79.25 13.4 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>8.5 0.2 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>8.5 0.2 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_09_north">
+      <static>true</static>
+      <pose>79.25 16.6 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>8.5 0.2 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>8.5 0.2 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_10_west">
+      <static>true</static>
+      <pose>18.4 4.75 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 6.5 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 6.5 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_11_east">
+      <static>true</static>
+      <pose>21.6 4.75 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 6.5 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 6.5 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_12_west">
+      <static>true</static>
+      <pose>58.4 -9 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 15 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 15 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_13_east">
+      <static>true</static>
+      <pose>61.6 -7.5 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 12 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 12 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_14_west">
+      <static>true</static>
+      <pose>67.4 -20.75 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 8.5 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 8.5 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_15_east">
+      <static>true</static>
+      <pose>70.6 -19.25 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 11.5 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 11.5 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_16_west">
+      <static>true</static>
+      <pose>83.4 7.5 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 12 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 12 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_17_west">
+      <static>true</static>
+      <pose>83.4 23.25 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 13.5 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 13.5 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_18_east">
+      <static>true</static>
+      <pose>86.6 15.75 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 28.5 2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 28.5 2</size></box>
+          </geometry>
+          <material>
+            <ambient>0.25 0.015 0.015 1</ambient>
+            <diffuse>0.43 0.025 0.025 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ===================== 丰富几何与纹理特征 ===================== -->
+
+        <!-- ===================== 追加：涵道内部细节、静态小障碍、电缆与纹理 ===================== -->
+    <!-- 放置原则：所有新增物体均在现有涵道内；涵道净宽约3m，墙内侧约±1.5m，高度0~2m。 -->
+    <!-- 圆柱体电缆默认沿Z轴，因此沿X方向使用 rpy=0 1.5708 0，沿Y方向使用 rpy=1.5708 0 0。 -->
+
+    <!-- A. 分岔与拐角处的小型静态障碍物：靠边布置，不改变通道拓扑 -->
+    <model name="feature_crate_left_branch_01">
+      <static>true</static>
+      <pose>19.15 3.10 0.18 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.55 0.45 0.36</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.55 0.45 0.36</size></box></geometry><material><ambient>0.28 0.24 0.18 1</ambient><diffuse>0.48 0.40 0.30 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_low_block_left_branch_02">
+      <static>true</static>
+      <pose>20.95 6.80 0.15 0 0 0.35</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.70 0.35 0.30</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.70 0.35 0.30</size></box></geometry><material><ambient>0.32 0.30 0.28 1</ambient><diffuse>0.46 0.44 0.42 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_crate_right_turn_01">
+      <static>true</static>
+      <pose>59.15 -8.80 0.20 0 0 -0.25</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.50 0.60 0.40</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.50 0.60 0.40</size></box></geometry><material><ambient>0.25 0.24 0.20 1</ambient><diffuse>0.42 0.40 0.34 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_barrel_right_branch_02">
+      <static>true</static>
+      <pose>68.25 -19.30 0.28 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><cylinder><radius>0.22</radius><length>0.56</length></cylinder></geometry></collision>
+        <visual name="visual"><geometry><cylinder><radius>0.22</radius><length>0.56</length></cylinder></geometry><material><ambient>0.30 0.30 0.26 1</ambient><diffuse>0.50 0.50 0.42 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_low_block_right_deadend_03">
+      <static>true</static>
+      <pose>69.80 -23.20 0.14 0 0 0.5</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.65 0.38 0.28</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.65 0.38 0.28</size></box></geometry><material><ambient>0.24 0.25 0.27 1</ambient><diffuse>0.38 0.40 0.44 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_crate_upper_branch_01">
+      <static>true</static>
+      <pose>84.05 7.20 0.18 0 0 -0.4</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.45 0.65 0.36</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.45 0.65 0.36</size></box></geometry><material><ambient>0.30 0.25 0.22 1</ambient><diffuse>0.50 0.42 0.36 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_low_block_upper_branch_02">
+      <static>true</static>
+      <pose>85.95 12.10 0.13 0 0 0.15</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.58 0.40 0.26</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.58 0.40 0.26</size></box></geometry><material><ambient>0.27 0.27 0.24 1</ambient><diffuse>0.42 0.42 0.36 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_small_column_upper_end_03">
+      <static>true</static>
+      <pose>84.20 24.50 0.35 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><cylinder><radius>0.16</radius><length>0.70</length></cylinder></geometry></collision>
+        <visual name="visual"><geometry><cylinder><radius>0.16</radius><length>0.70</length></cylinder></geometry><material><ambient>0.34 0.32 0.30 1</ambient><diffuse>0.50 0.48 0.45 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- B. 天花板与墙边电缆：贴近顶板/墙面，位于z=1.70~1.88，不伸出涵道 -->
+    <model name="feature_cable_main_x_01">
+      <static>true</static>
+      <pose>30.0 1.22 1.82 0 1.5708 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><cylinder><radius>0.025</radius><length>24.0</length></cylinder></geometry></collision>
+        <visual name="visual"><geometry><cylinder><radius>0.025</radius><length>24.0</length></cylinder></geometry><material><ambient>0.02 0.02 0.02 1</ambient><diffuse>0.04 0.04 0.04 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_cable_main_x_02">
+      <static>true</static>
+      <pose>74.0 -1.22 1.78 0 1.5708 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><cylinder><radius>0.025</radius><length>28.0</length></cylinder></geometry></collision>
+        <visual name="visual"><geometry><cylinder><radius>0.025</radius><length>28.0</length></cylinder></geometry><material><ambient>0.02 0.02 0.018 1</ambient><diffuse>0.05 0.05 0.04 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_cable_left_branch_y_01">
+      <static>true</static>
+      <pose>18.85 4.80 1.76 1.5708 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><cylinder><radius>0.025</radius><length>6.2</length></cylinder></geometry></collision>
+        <visual name="visual"><geometry><cylinder><radius>0.025</radius><length>6.2</length></cylinder></geometry><material><ambient>0.03 0.025 0.02 1</ambient><diffuse>0.06 0.05 0.04 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_cable_right_branch_y_01">
+      <static>true</static>
+      <pose>60.95 -7.50 1.82 1.5708 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><cylinder><radius>0.025</radius><length>10.8</length></cylinder></geometry></collision>
+        <visual name="visual"><geometry><cylinder><radius>0.025</radius><length>10.8</length></cylinder></geometry><material><ambient>0.03 0.025 0.02 1</ambient><diffuse>0.06 0.05 0.04 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_cable_right_branch_x_02">
+      <static>true</static>
+      <pose>64.50 -14.10 1.80 0 1.5708 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><cylinder><radius>0.025</radius><length>9.5</length></cylinder></geometry></collision>
+        <visual name="visual"><geometry><cylinder><radius>0.025</radius><length>9.5</length></cylinder></geometry><material><ambient>0.02 0.02 0.02 1</ambient><diffuse>0.05 0.05 0.045 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_cable_right_deadend_y_03">
+      <static>true</static>
+      <pose>70.05 -20.80 1.74 1.5708 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><cylinder><radius>0.025</radius><length>7.2</length></cylinder></geometry></collision>
+        <visual name="visual"><geometry><cylinder><radius>0.025</radius><length>7.2</length></cylinder></geometry><material><ambient>0.025 0.02 0.018 1</ambient><diffuse>0.055 0.045 0.04 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="feature_cable_upper_branch_y_01">
+      <static>true</static>
+      <pose>86.05 15.70 1.80 1.5708 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><cylinder><radius>0.025</radius><length>27.0</length></cylinder></geometry></collision>
+        <visual name="visual"><geometry><cylinder><radius>0.025</radius><length>27.0</length></cylinder></geometry><material><ambient>0.025 0.022 0.018 1</ambient><diffuse>0.055 0.048 0.04 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- C. 顶部横梁/吊架：高度低于顶板，尺寸控制在通道内部 -->
+    <model name="feature_crossbeam_main_01"><static>true</static><pose>12 0 1.88 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>0.16 2.65 0.12</size></box></geometry></collision><visual name="visual"><geometry><box><size>0.16 2.65 0.12</size></box></geometry><material><ambient>0.25 0.24 0.26 1</ambient><diffuse>0.38 0.37 0.40 1</diffuse></material></visual></link></model>
+    <model name="feature_crossbeam_main_02"><static>true</static><pose>46 0 1.88 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>0.16 2.65 0.12</size></box></geometry></collision><visual name="visual"><geometry><box><size>0.16 2.65 0.12</size></box></geometry><material><ambient>0.25 0.24 0.26 1</ambient><diffuse>0.38 0.37 0.40 1</diffuse></material></visual></link></model>
+    <model name="feature_crossbeam_main_03"><static>true</static><pose>72 0 1.88 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>0.16 2.65 0.12</size></box></geometry></collision><visual name="visual"><geometry><box><size>0.16 2.65 0.12</size></box></geometry><material><ambient>0.25 0.24 0.26 1</ambient><diffuse>0.38 0.37 0.40 1</diffuse></material></visual></link></model>
+    <model name="feature_crossbeam_left_branch_01"><static>true</static><pose>20 4.6 1.88 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>2.65 0.16 0.12</size></box></geometry></collision><visual name="visual"><geometry><box><size>2.65 0.16 0.12</size></box></geometry><material><ambient>0.25 0.24 0.26 1</ambient><diffuse>0.38 0.37 0.40 1</diffuse></material></visual></link></model>
+    <model name="feature_crossbeam_right_branch_01"><static>true</static><pose>60 -8.5 1.88 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>2.65 0.16 0.12</size></box></geometry></collision><visual name="visual"><geometry><box><size>2.65 0.16 0.12</size></box></geometry><material><ambient>0.25 0.24 0.26 1</ambient><diffuse>0.38 0.37 0.40 1</diffuse></material></visual></link></model>
+    <model name="feature_crossbeam_upper_branch_01"><static>true</static><pose>85 8.0 1.88 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>2.65 0.16 0.12</size></box></geometry></collision><visual name="visual"><geometry><box><size>2.65 0.16 0.12</size></box></geometry><material><ambient>0.25 0.24 0.26 1</ambient><diffuse>0.38 0.37 0.40 1</diffuse></material></visual></link></model>
+
+    <!-- D. 墙面浅浮雕/纹理板：只向涵道内微凸，不改变墙体走向 -->
+    <model name="feature_wall_panel_main_north_01"><static>true</static><pose>17.0 1.46 1.05 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>2.4 0.08 0.70</size></box></geometry></collision><visual name="visual"><geometry><box><size>2.4 0.08 0.70</size></box></geometry><material><ambient>0.34 0.32 0.30 1</ambient><diffuse>0.48 0.46 0.43 1</diffuse></material></visual></link></model>
+    <model name="feature_wall_panel_main_south_01"><static>true</static><pose>38.0 -1.46 0.95 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>1.8 0.08 0.60</size></box></geometry></collision><visual name="visual"><geometry><box><size>1.8 0.08 0.60</size></box></geometry><material><ambient>0.30 0.30 0.32 1</ambient><diffuse>0.44 0.44 0.47 1</diffuse></material></visual></link></model>
+    <model name="feature_wall_panel_right_west_01"><static>true</static><pose>58.54 -7.0 1.00 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>0.08 2.0 0.65</size></box></geometry></collision><visual name="visual"><geometry><box><size>0.08 2.0 0.65</size></box></geometry><material><ambient>0.34 0.31 0.30 1</ambient><diffuse>0.48 0.44 0.42 1</diffuse></material></visual></link></model>
+    <model name="feature_wall_panel_upper_east_01"><static>true</static><pose>86.46 20.0 1.10 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>0.08 2.8 0.70</size></box></geometry></collision><visual name="visual"><geometry><box><size>0.08 2.8 0.70</size></box></geometry><material><ambient>0.33 0.31 0.29 1</ambient><diffuse>0.47 0.45 0.41 1</diffuse></material></visual></link></model>
+
+    <!-- E. 小型颜色标识/检修盒：视觉特征，不堵塞通道 -->
+    <model name="feature_service_box_main_01"><static>true</static><pose>55.0 1.44 1.25 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>0.55 0.10 0.42</size></box></geometry></collision><visual name="visual"><geometry><box><size>0.55 0.10 0.42</size></box></geometry><material><ambient>0.10 0.16 0.35 1</ambient><diffuse>0.15 0.25 0.60 1</diffuse></material></visual></link></model>
+    <model name="feature_service_box_branch_01"><static>true</static><pose>85.0 1.44 1.30 0 0 0</pose><link name="link"><collision name="collision"><geometry><box><size>0.50 0.10 0.38</size></box></geometry></collision><visual name="visual"><geometry><box><size>0.50 0.10 0.38</size></box></geometry><material><ambient>0.35 0.10 0.08 1</ambient><diffuse>0.65 0.18 0.12 1</diffuse></material></visual></link></model>
+
+
+    <gui fullscreen="0">
+      <camera name="user_camera">
+        <pose>50 -75 65 0 0.8 1.57</pose>
+      </camera>
+    </gui>
+
+  </world>
+</sdf>

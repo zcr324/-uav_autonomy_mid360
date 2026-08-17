@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 航迹任务层：communication(60Hz setpoint 流) + takeoff + mission 航点执行。
+         依赖：仿真环境 + LIO + bridge 已运行。 -->
+    <arg name="drone_id" default="0"/>
+    <arg name="vehicle_type" default="iris"/>
+    <arg name="waypoints" default="[[0,8,1.5],[5,8,1.5],[5,12,1.5]]"/>
+    <arg name="start_communication" default="true"/>
+    <arg name="do_takeoff" default="true"/>
+
+    <group if="$(arg start_communication)">
+        <node pkg="mission" type="multirotor_communication.py" name="communication"
+              args="$(arg vehicle_type) $(arg drone_id)" output="screen"/>
+    </group>
+
+    <group if="$(arg do_takeoff)">
+        <node pkg="mission" type="takeoff.py" name="takeoff"
+              args="$(arg vehicle_type) $(arg drone_id)" output="screen"/>
+    </group>
+
+    <node pkg="mission" type="mission.py" name="mission" output="screen">
+        <param name="drone_id" value="$(arg drone_id)"/>
+        <param name="waypoints" value="$(arg waypoints)"/>
+        <param name="takeoff_wait" value="$(eval 20 if arg('do_takeoff') else 0)"/>
+    </node>
+</launch>

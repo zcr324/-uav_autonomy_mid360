@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>sim_env</name>
+  <version>0.0.1</version>
+  <description>Single-drone PX4 SITL + Gazebo + Livox Mid360 simulation environment (tunnel / jiong3 worlds)</description>
+  <maintainer email="zcr@todo.todo">zcr</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>mavros</exec_depend>
+  <exec_depend>mavros_msgs</exec_depend>
+  <exec_depend>px4</exec_depend>
+  <exec_depend>mavlink_sitl_gazebo</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>livox_laser_simulation</exec_depend>
+</package>

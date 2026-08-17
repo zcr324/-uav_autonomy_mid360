@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Single-drone env in jiong3 world (9-wall 14x14 m arena, natural loop closure).
+         Spawn at center (0, 0, 0.5) to stay clear of the walls. -->
+    <include file="$(find sim_env)/launch/uav_single.launch">
+        <arg name="world" value="$(find sim_env)/worlds/jiong3.world"/>
+        <arg name="x" value="0"/>
+        <arg name="y" value="0"/>
+        <arg name="z" value="0.5"/>
+    </include>
+</launch>
