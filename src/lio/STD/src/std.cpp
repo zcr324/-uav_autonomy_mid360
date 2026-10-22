@@ -109,7 +109,7 @@ void load_config_setting(std::string &config_file,
   config_setting.descriptor_near_num_ = fSettings["descriptor_near_num"];
   config_setting.descriptor_min_len_ = fSettings["descriptor_min_len"];
   config_setting.descriptor_max_len_ = fSettings["descriptor_max_len"];
-  config_setting.non_max_suppression_radius_ = fSettings["max_constrait_dis"];
+  config_setting.non_max_suppression_radius_ = fSettings["non_max_suppression_radius"];
   config_setting.std_side_resolution_ = fSettings["triangle_resolution"];
 
   // candidate search

@@ -1,80 +1,65 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# takeoff: 单机起飞序列（等价 racer hover.py，单机 + py3）。
-# 时序：cmd_vel_flu 上推 1.0（触发 communication 切 OFFBOARD）-> OFFBOARD -> ARM -> HOVER。
-# 依赖 multirotor_communication.py 已在运行（60Hz setpoint 流）。
-
+"""Take off using an ENU position target, and verify mode, arming and height."""
+import math
 import sys
 import time
-
 import rospy
-import mavros_msgs.msg
-from geometry_msgs.msg import Twist
+import tf.transformations as tft
+from geometry_msgs.msg import Pose, PoseStamped
+from mavros_msgs.msg import State
 from std_msgs.msg import String
-
-
-def _in_mode(ns, mode):
-    """查询 /ns/mavros/state 的当前飞行模式（1s 超时，失败返回 False）"""
-    try:
-        state = rospy.wait_for_message("/{}/mavros/state".format(ns), mavros_msgs.msg.State, timeout=1.0)
-        return state.mode == mode
-    except rospy.ROSException:
-        return False
-
+from std_srvs.srv import SetBool
 
 def main():
-    vehicle_type = sys.argv[1] if len(sys.argv) > 1 else "iris"
-    vehicle_id = sys.argv[2] if len(sys.argv) > 2 else "0"
-
+    vehicle = sys.argv[1] if len(sys.argv)>1 else "iris"
+    ident = sys.argv[2] if len(sys.argv)>2 else "0"
     rospy.init_node("takeoff")
-
-    ns = "{}_{}".format(vehicle_type, vehicle_id)
-    cmd_pub = rospy.Publisher("/xtdrone/{}/cmd".format(ns), String, queue_size=10)
-    vel_pub = rospy.Publisher("/xtdrone/{}/cmd_vel_flu".format(ns), Twist, queue_size=10)
-
-    # 等 MAVROS 就绪（心跳 + 可用的模式/解锁服务），否则一次性序列会打在空处
-    rospy.loginfo("[%s] waiting for mavros connection...", ns)
-    try:
-        rospy.wait_for_message("/{}/mavros/state".format(ns), mavros_msgs.msg.State, timeout=120)
-    except rospy.ROSException:
-        rospy.logerr("[%s] mavros state timeout, abort", ns)
-        return
-    rospy.loginfo("[%s] mavros connected, waiting 3s for setpoint stream...", ns)
-    rospy.sleep(3.0)
-
-    twist = Twist()
-
-    # 1. 上推 1.0 m/s（communication 检测非零速度 -> OFFBOARD）
-    twist.linear.z = 1.0
-    rospy.sleep(1.0)
-    for _ in range(10):
-        vel_pub.publish(twist)
-        rospy.sleep(0.1)
-
-    # 2. OFFBOARD（失败重试，PX4 需要足够的 setpoint 流才接受切换）
-    for attempt in range(5):
-        cmd_pub.publish(String("OFFBOARD"))
-        rospy.loginfo("[%s] OFFBOARD (attempt %d)", ns, attempt + 1)
-        rospy.sleep(2.0)
-        if _in_mode(ns, "OFFBOARD"):
+    ns = "{}_{}".format(vehicle,ident)
+    height = float(rospy.get_param("~height",1.5))
+    timeout = float(rospy.get_param("~timeout",90.0))
+    state = {"state":None,"pose":None}
+    rospy.Subscriber("/{}/mavros/state".format(ns),State,lambda m:state.update(state=m),queue_size=1)
+    rospy.Subscriber("/{}/mavros/local_position/pose".format(ns),PoseStamped,lambda m:state.update(pose=m),queue_size=1)
+    commands=rospy.Publisher("/xtdrone/{}/cmd".format(ns),String,queue_size=2)
+    targets=rospy.Publisher("/xtdrone/{}/cmd_pose_enu".format(ns),Pose,queue_size=2)
+    # Acquire takeoff ownership before producing any motion command.
+    rospy.wait_for_service("/control_transfer/set_enabled", timeout=10)
+    response=rospy.ServiceProxy("/control_transfer/set_enabled",SetBool)(False)
+    if not response.success:raise RuntimeError("Could not disable planner control: "+response.message)
+    deadline=time.monotonic()+timeout
+    while not rospy.is_shutdown():
+        if state["state"] and state["state"].connected and state["pose"] and targets.get_num_connections()>0:
             break
-    else:
-        rospy.logwarn("[%s] failed to enter OFFBOARD after retries, continuing anyway", ns)
+        if time.monotonic()>deadline:raise RuntimeError("MAVROS/local pose/communication readiness timeout")
+        time.sleep(.05)
+    pose=state["pose"].pose
+    target=Pose()
+    target.position.x,target.position.y,target.position.z=pose.position.x,pose.position.y,pose.position.z
+    target.orientation.x=tft.euler_from_quaternion([pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w])[2]
+    # Prime a hold target before OFFBOARD and arming.
+    end=time.monotonic()+3
+    while time.monotonic()<end:
+        targets.publish(target);time.sleep(.05)
+    for request,predicate in [
+        ("OFFBOARD",lambda:state["state"].mode=="OFFBOARD"),
+        ("ARM",lambda:state["state"].armed)]:
+        last_request=0
+        while not rospy.is_shutdown() and not predicate():
+            targets.publish(target)
+            if time.monotonic()-last_request>2:
+                commands.publish(String(data=request));last_request=time.monotonic()
+            if time.monotonic()>deadline:raise RuntimeError(request+" not acknowledged")
+            time.sleep(.05)
+    target.position.z += height
+    while not rospy.is_shutdown():
+        targets.publish(target)
+        if state["state"].mode!="OFFBOARD" or not state["state"].armed:
+            raise RuntimeError("Lost OFFBOARD/arming during takeoff")
+        if abs(state["pose"].pose.position.z-target.position.z)<.2:
+            rospy.loginfo("Takeoff reached %.2f m; communication holds target",target.position.z)
+            return
+        if time.monotonic()>deadline:raise RuntimeError("Takeoff height timeout")
+        time.sleep(.05)
 
-    # 3. ARM
-    cmd_pub.publish(String("ARM"))
-    rospy.loginfo("[%s] ARM", ns)
-    rospy.sleep(2.0)
-
-    # 4. HOVER（速度归零，communication 锁定当前位置悬停）
-    twist.linear.z = 0.0
-    vel_pub.publish(twist)
-    cmd_pub.publish(String("HOVER"))
-    rospy.loginfo("[%s] HOVER", ns)
-
-    # 保持节点存活，期间 communication 持续 60Hz 悬停 setpoint
-    rospy.spin()
-
-
-if __name__ == "__main__":
+if __name__=="__main__":
     main()

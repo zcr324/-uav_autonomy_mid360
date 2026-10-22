@@ -1,0 +1,24 @@
+<launch>
+  <arg name="save_dir"/><arg name="lcd_config"/><arg name="pgo_config"/>
+  <arg name="start_std" default="true"/>
+  <arg name="refine_loop_icp" default="false"/>
+  <param name="multisession_mode" value="0"/>
+  <param name="SaveDir" value="$(arg save_dir)"/>
+  <param name="save_map" value="false"/><param name="SavePCD" value="false"/>
+  <rosparam command="load" file="$(arg pgo_config)"/>
+  <group if="$(arg start_std)">
+    <param name="/std/prebuilt_submaps" value="true"/>
+    <param name="/std/refine_loop_icp" value="$(arg refine_loop_icp)"/>
+    <param name="/std/input_cloud_topic" value="/recorded/clouds_submap"/>
+    <param name="/std/input_odom_topic" value="/recorded/submap_pose"/>
+    <param name="lcd_config_path" value="$(arg lcd_config)"/>
+    <node pkg="nodelet" type="nodelet" name="std_replay_manager" args="manager" output="screen">
+      <param name="num_worker_threads" value="1"/>
+    </node>
+    <node pkg="nodelet" type="nodelet" name="std_replay_loader" args="load std_loop/loop_detection_plugin std_replay_manager" output="screen">
+      <remap from="/cloud_registered" to="/recorded/clouds_submap"/>
+      <remap from="/aft_mapped_to_init" to="/recorded/submap_pose"/>
+    </node>
+  </group>
+  <node pkg="loop_optimization" type="loop_optimization_node" name="loop_optimization" output="screen"/>
+</launch>

@@ -51,3 +51,9 @@ T_lidar_to_vehicle: !!opencv-matrix
         0,       0,            0,                1]
 # gt file: 0 for kitti, 1 for mulran and cu
 gt_file_style: 1
+
+non_max_suppression_radius: 0.5
+
+point_skip: 1
+
+touch_filter_enable: 0

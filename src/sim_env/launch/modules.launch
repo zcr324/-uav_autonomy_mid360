@@ -1,0 +1,15 @@
+<launch><arg name="pgo_config" default="$(find loop_optimization)/launch/loopopt_config_avia.yaml"/>
+  <arg name="min_flight_z" default="0.6"/><arg name="max_flight_z" default="1.6"/>
+  <param name="/framework/min_flight_z" value="$(arg min_flight_z)"/>
+  <param name="/framework/max_flight_z" value="$(arg max_flight_z)"/><arg name="bridge" default="true"/>
+  <arg name="save_dir" default="$(env UAV_WS)/integration/logs/ltaom/"/>
+  <arg name="lcd_config" default="$(find std_loop)/config/config_mid360.yaml"/><arg name="loop" default="true" /><arg name="planning" default="true" /><arg name="control" default="false" /><arg name="x" default="20" /><arg name="y" default="4" /><arg name="z" default="0.055" /><include file="$(find loop_optimization)/launch/mid360.launch"><arg name="pgo_config" value="$(arg pgo_config)"/><arg name="save_dir" value="$(arg save_dir)"/><arg name="lcd_config" value="$(arg lcd_config)"/>
+    <arg name="loop" value="$(arg loop)" />
+  </include>
+  <include if="$(arg bridge)" file="$(find bridge)/launch/bridge.launch">
+    <arg name="init_x" value="$(arg x)" /><arg name="init_y" value="$(arg y)" /><arg name="init_z" value="$(arg z)" />
+    <arg name="start_control" value="$(arg control)" />
+  </include>
+  <include if="$(arg planning)" file="$(find ego_planner)/launch/framework.launch" />
+  <node if="$(arg control)" pkg="mission" type="multirotor_communication.py" name="communication" args="iris 0" output="screen" />
+</launch>

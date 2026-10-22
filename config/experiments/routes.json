@@ -1,0 +1,243 @@
+{
+  "short": {
+    "world": "structured_px4.world",
+    "start": [
+      20,
+      4,
+      0.055
+    ],
+    "waypoints": [
+      [
+        20.7,
+        4,
+        1.05
+      ],
+      [
+        20,
+        4,
+        1.05
+      ]
+    ],
+    "intent": "short flight regression"
+  },
+  "multi": {
+    "world": "structured_px4.world",
+    "start": [
+      20,
+      4,
+      0.055
+    ],
+    "waypoints": [
+      [
+        20,
+        2,
+        1.05
+      ],
+      [
+        20,
+        0,
+        1.05
+      ],
+      [
+        23,
+        0,
+        1.05
+      ],
+      [
+        20,
+        0,
+        1.05
+      ],
+      [
+        20,
+        4,
+        1.05
+      ]
+    ],
+    "intent": "branch turn, multi-goal and return"
+  },
+  "long": {
+    "world": "structured_px4.world",
+    "start": [
+      20,
+      4,
+      0.055
+    ],
+    "waypoints": [
+      [
+        20,
+        0,
+        1.05
+      ],
+      [
+        26,
+        0,
+        1.05
+      ],
+      [
+        32,
+        0,
+        1.05
+      ],
+      [
+        38,
+        0,
+        1.05
+      ],
+      [
+        32,
+        0,
+        1.05
+      ],
+      [
+        26,
+        0,
+        1.05
+      ],
+      [
+        20,
+        0,
+        1.05
+      ],
+      [
+        20,
+        4,
+        1.05
+      ]
+    ],
+    "intent": "44m nominal out-and-back; test longitudinal observability"
+  },
+  "loop": {
+    "world": "tunnel_complex.world",
+    "start": [
+      25,
+      0,
+      0.055
+    ],
+    "waypoints": [
+      [
+        25,
+        0,
+        1.05
+      ],
+      [
+        25,
+        -5,
+        1.05
+      ],
+      [
+        25,
+        -10,
+        1.05
+      ],
+      [
+        35,
+        -10,
+        1.05
+      ],
+      [
+        45,
+        -10,
+        1.05
+      ],
+      [
+        45,
+        -5,
+        1.05
+      ],
+      [
+        45,
+        0,
+        1.05
+      ],
+      [
+        35,
+        0,
+        1.05
+      ],
+      [
+        25,
+        0,
+        1.05
+      ]
+    ],
+    "intent": "visit main entry first, then complete U-loop and return; 60m nominal ring plus approach"
+  },
+  "obstacle": {
+    "world": "structured_obstacle.world",
+    "start": [
+      20,
+      4,
+      0.055
+    ],
+    "waypoints": [
+      [
+        20,
+        0,
+        1.05
+      ],
+      [
+        20,
+        4,
+        1.05
+      ]
+    ],
+    "intent": "center block intersects direct route; EGO must find its own side detour"
+  },
+  "loop_featured": {
+    "world": "tunnel_featured.world",
+    "start": [
+      25,
+      0,
+      0.055
+    ],
+    "waypoints": [
+      [
+        25,
+        0,
+        1.05
+      ],
+      [
+        25,
+        -5,
+        1.05
+      ],
+      [
+        25,
+        -10,
+        1.05
+      ],
+      [
+        35,
+        -10,
+        1.05
+      ],
+      [
+        45,
+        -10,
+        1.05
+      ],
+      [
+        45,
+        -5,
+        1.05
+      ],
+      [
+        45,
+        0,
+        1.05
+      ],
+      [
+        35,
+        0,
+        1.05
+      ],
+      [
+        25,
+        0,
+        1.05
+      ]
+    ],
+    "intent": "same U-route with real asymmetric wall pilasters; geometry intervention, unchanged algorithm defaults"
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "mode": "flight",
+  "route": "loop_featured",
+  "success": true,
+  "arrival_tolerance": 0.5,
+  "precision_tolerance": 0.3,
+  "evaluation_gates_next_goal": true,
+  "truth_usage": "evaluation and abort only; no estimator/control pose injection",
+  "px4_parameters": {
+    "EKF2_AID_MASK": {
+      "success": true,
+      "integer": 24,
+      "real": 0.0
+    },
+    "EKF2_HGT_MODE": {
+      "success": true,
+      "integer": 3,
+      "real": 0.0
+    }
+  },
+  "measured_real_time_factor": 0.46310041496573057,
+  "reached": [
+    {
+      "index": 0,
+      "map_error": 0.16570227727455006,
+      "truth_error": 0.10532307205074319,
+      "precision_pass": true
+    },
+    {
+      "index": 1,
+      "map_error": 0.4167453354020878,
+      "truth_error": 0.46267525429425527,
+      "precision_pass": false
+    },
+    {
+      "index": 2,
+      "map_error": 0.39741482769698194,
+      "truth_error": 0.4471923325741427,
+      "precision_pass": false
+    },
+    {
+      "index": 3,
+      "map_error": 0.42715924351084683,
+      "truth_error": 0.29542313543343657,
+      "precision_pass": false
+    },
+    {
+      "index": 4,
+      "map_error": 0.45874138199544096,
+      "truth_error": 0.4765194086745824,
+      "precision_pass": false
+    },
+    {
+      "index": 5,
+      "map_error": 0.4396282121180478,
+      "truth_error": 0.1745822832700871,
+      "precision_pass": false
+    },
+    {
+      "index": 6,
+      "map_error": 0.4461646439064728,
+      "truth_error": 0.09800640992315619,
+      "precision_pass": false
+    },
+    {
+      "index": 7,
+      "map_error": 0.4705161095126314,
+      "truth_error": 0.45794990479413944,
+      "precision_pass": false
+    },
+    {
+      "index": 8,
+      "map_error": 0.4635907158084365,
+      "truth_error": 0.40323146212536604,
+      "precision_pass": false
+    }
+  ],
+  "precision_success": false,
+  "landed_disarmed": true,
+  "metrics": {
+    "samples": 4971,
+    "max_truth_error": 0.6071329008120961,
+    "rmse_truth_error": 0.3412886433361592,
+    "truth_path_length": 63.71047441654821
+  },
+  "message_counts": {
+    "truth": 110083,
+    "state": 250,
+    "odom": 2490,
+    "local": 7470,
+    "cloud": 2489,
+    "cmd": 23389
+  },
+  "submap_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33
+  ],
+  "loop_messages": [
+    {
+      "sim_time": 302.35,
+      "covariance": [
+        32.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation": [
+        -0.0012064821790958025,
+        0.08427011730567063,
+        0.008234085487347054
+      ]
+    },
+    {
+      "sim_time": 309.864,
+      "covariance": [
+        33.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation": [
+        -0.012551077379142406,
+        -0.015337564349113542,
+        -0.012415678996894997
+      ]
+    }
+  ],
+  "map_voxels": 28891,
+  "geometry_evaluation": {
+    "minimum_truth_center_surface_distance": 0.6887333702205979,
+    "nearest_static_object": "branch2_wall_right",
+    "note": "center-to-static-shape distance, not full vehicle collision/contact proof; floor excluded"
+  }
+}

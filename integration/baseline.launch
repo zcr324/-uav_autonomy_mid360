@@ -1,0 +1,27 @@
+<launch>
+  <arg name="gui" default="true"/>
+  <arg name="world" default="/home/zcr/uav_ws/src/sim_env/worlds/tunnel_complex.world"/>
+  <arg name="x" default="0"/><arg name="y" default="0"/><arg name="z" default="0.5"/>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world)"/><arg name="gui" value="$(arg gui)"/>
+  </include>
+  <group ns="iris_0">
+    <env name="PX4_SIM_MODEL" value="iris"/><env name="PX4_ESTIMATOR" value="ekf2"/>
+    <param name="model_description" textfile="/home/zcr/uav_ws/integration/baseline_ws/models/iris_mid360_fl2/iris_mid360_fl2.sdf"/>
+    <node name="sitl_0" pkg="px4" type="px4" output="screen"
+      args="$(find px4)/build/px4_sitl_default/etc -s etc/init.d-posix/rcS -i 0 -w /home/zcr/uav_ws/integration/logs/px4_baseline -d"/>
+    <node name="spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+      args="-sdf -param model_description -model iris_0 -x $(arg x) -y $(arg y) -z $(arg z)"/>
+    <include file="$(find mavros)/launch/px4.launch">
+      <arg name="fcu_url" value="udp://:24540@localhost:34580"/>
+      <arg name="gcs_url" value=""/><arg name="tgt_system" value="1"/><arg name="tgt_component" value="1"/>
+    </include>
+  </group>
+  <rosparam command="load" file="$(find fast_lio)/config/mid360.yaml"/>
+  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen"
+    launch-prefix="python3 /home/zcr/uav_ws/tools/wait_sim_sensors.py">
+    <param name="feature_extract_enable" value="false"/><param name="point_filter_num" value="3"/>
+    <param name="max_iteration" value="3"/><param name="filter_size_surf" value="0.5"/>
+    <param name="filter_size_map" value="0.5"/><param name="cube_side_length" value="1000"/>
+  </node>
+</launch>

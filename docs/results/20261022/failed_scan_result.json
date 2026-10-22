@@ -1,0 +1,121 @@
+{
+  "mode": "flight",
+  "route": "loop_featured",
+  "success": false,
+  "wall_budget_seconds": 1200,
+  "arrival_tolerance": 0.5,
+  "precision_tolerance": 0.3,
+  "evaluation_gates_next_goal": true,
+  "truth_usage": "evaluation, abort and next-goal acceptance; no estimator/planner/control-adapter pose injection",
+  "flight_height_envelope": [
+    0.6,
+    1.6
+  ],
+  "px4_parameters": {
+    "EKF2_AID_MASK": {
+      "success": true,
+      "integer": 24,
+      "real": 0.0
+    },
+    "EKF2_HGT_MODE": {
+      "success": true,
+      "integer": 3,
+      "real": 0.0
+    }
+  },
+  "measured_real_time_factor": 0.4862295263553251,
+  "reached": [
+    {
+      "index": 0,
+      "map_error": 0.23013147792082325,
+      "truth_error": 0.16748580068498722,
+      "precision_pass": true
+    },
+    {
+      "index": 1,
+      "map_error": 0.35929277435095414,
+      "truth_error": 0.44191287996203865,
+      "precision_pass": false
+    },
+    {
+      "index": 2,
+      "map_error": 0.376268880598298,
+      "truth_error": 0.45096240523850417,
+      "precision_pass": false
+    },
+    {
+      "index": 3,
+      "map_error": 0.4508398040168956,
+      "truth_error": 0.3327898586964151,
+      "precision_pass": false
+    },
+    {
+      "index": 4,
+      "map_error": 0.43184756018980686,
+      "truth_error": 0.4746982837647226,
+      "precision_pass": false
+    },
+    {
+      "index": 5,
+      "map_error": 0.44722024270854266,
+      "truth_error": 0.45875816705898087,
+      "precision_pass": false
+    }
+  ],
+  "error": "Waypoint 6 timeout, map error 0.047m, truth error 0.640m",
+  "landed_disarmed": true,
+  "metrics": {
+    "samples": 5464,
+    "max_truth_error": 0.7161673726502685,
+    "rmse_truth_error": 0.38205735786942757,
+    "truth_path_length": 45.54205066250322
+  },
+  "message_counts": {
+    "odom": 2450,
+    "truth": 110419,
+    "state": 246,
+    "local": 7349,
+    "cloud": 2449,
+    "cmd": 22901
+  },
+  "submap_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "loop_messages": [],
+  "map_voxels": 30960,
+  "geometry_evaluation": {
+    "minimum_truth_center_surface_distance": 0.7031610003117251,
+    "nearest_static_object": "branch2_wall_right",
+    "note": "center-to-static-shape distance, not full vehicle collision/contact proof; floor excluded"
+  }
+}

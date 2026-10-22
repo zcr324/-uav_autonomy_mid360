@@ -54,7 +54,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   pcl_ros
   tf
-  livox_ros_driver
+  livox_ros_driver2
   message_generation
   eigen_conversions
   nodelet
@@ -124,3 +124,9 @@ endif()
 add_executable(map_eva map_eva/mapconsistency_eva.cpp)
 target_link_libraries(map_eva ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
+
+add_dependencies(fastlio_mapping ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(fastlio_mapping_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(extra_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

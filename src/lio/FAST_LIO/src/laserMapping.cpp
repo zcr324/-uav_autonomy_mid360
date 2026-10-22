@@ -69,7 +69,7 @@ Dr. Fu Zhang < fuzhang@hku.hk >.
 #include <tf/transform_broadcaster.h>
 #include <fast_lio/States.h>
 #include <geometry_msgs/Vector3.h>
-#include <livox_ros_driver/CustomMsg.h>
+#include <livox_ros_driver2/CustomMsg.h>
 #include "preprocess.h"
 
 #ifdef USE_ikdforest
@@ -403,7 +403,7 @@ void standard_pcl_cbk(const sensor_msgs::PointCloud2::ConstPtr &msg)
     fout_dbg << "last_timestamp_lidar: " << std::to_string(last_timestamp_lidar) << std::endl << std::endl;
 }
 
-void livox_pcl_cbk(const livox_ros_driver::CustomMsg::ConstPtr &msg)
+void livox_pcl_cbk(const livox_ros_driver2::CustomMsg::ConstPtr &msg)
 {
     mtx_buffer.lock();
     scan_count ++;
@@ -1314,7 +1314,7 @@ void publish_map(const ros::Publisher & pubLaserCloudMap)
 void publish_odometry(const ros::Publisher & pubOdomAftMapped, const double curr_timestamp_lidar)
 {
     odomAftMapped.header.frame_id = "camera_init";
-    odomAftMapped.child_frame_id = "aft_mapped";
+    odomAftMapped.child_frame_id = "lio_body";
     odomAftMapped.header.stamp = /*ros::Time::now();*/ros::Time().fromSec(curr_timestamp_lidar);
     set_posestamp(odomAftMapped.pose.pose);
 
@@ -1324,7 +1324,7 @@ void publish_odometry(const ros::Publisher & pubOdomAftMapped, const double curr
                          odomAftMapped.pose.pose.orientation.w);
     tf::Transform t_odom_to_maporigin = tf::Transform(q_tmp,
         tf::Vector3(odomAftMapped.pose.pose.position.x, odomAftMapped.pose.pose.position.y, odomAftMapped.pose.pose.position.z));
-    tf::StampedTransform trans_odom_to_maporigin = tf::StampedTransform(t_odom_to_maporigin, odomAftMapped.header.stamp, "camera_init", "odom");
+    tf::StampedTransform trans_odom_to_maporigin = tf::StampedTransform(t_odom_to_maporigin, odomAftMapped.header.stamp, "camera_init", "lio_body");
     br.sendTransform(trans_odom_to_maporigin);
     pubOdomAftMapped.publish(odomAftMapped);
 }
@@ -1659,9 +1659,9 @@ int main(int argc, char** argv)
 
     /*** ROS subscribe initialization ***/
     ros::Subscriber sub_pcl = p_pre->lidar_type == AVIA ? \
-        nh.subscribe(lid_topic, 200000, livox_pcl_cbk) : \
-        nh.subscribe(lid_topic, 200000, standard_pcl_cbk);
-    ros::Subscriber sub_imu = nh.subscribe(imu_topic, 200000, imu_cbk);
+        nh.subscribe(lid_topic, 5, livox_pcl_cbk) : \
+        nh.subscribe(lid_topic, 5, standard_pcl_cbk);
+    ros::Subscriber sub_imu = nh.subscribe(imu_topic, 200, imu_cbk);
 #endif
     ros::Subscriber sub_submap_id = nh.subscribe<std_msgs::Int32>("/submap_ids", 100, submap_id_cbk);
     ros::Subscriber sub_submap_pose = nh.subscribe<nav_msgs::Odometry>("/submap_pose", 100, submap_pose_cbk);
@@ -1681,13 +1681,13 @@ int main(int argc, char** argv)
     ros::Subscriber sub_lc_onprior_id = nh.subscribe<std_msgs::Int32>("/ids_lc_onprior", 100, loopclosure_onprior_cbk);
 //}
     ros::Publisher pubLaserCloudFullRes = nh.advertise<sensor_msgs::PointCloud2>
-        ("/cloud_registered", 10000);
+        ("/cloud_registered", 2);
     ros::Publisher pubLaserCloudEffect  = nh.advertise<sensor_msgs::PointCloud2>
             ("/cloud_effected", 100);
     ros::Publisher pubLaserCloudMap = nh.advertise<sensor_msgs::PointCloud2>
             ("/Laser_map", 100);
     ros::Publisher pubOdomAftMapped = nh.advertise<nav_msgs::Odometry>
-        ("/aft_mapped_to_init", 10000);
+        ("/aft_mapped_to_init", 2);
     ros::Publisher pubPath          = nh.advertise<nav_msgs::Path>
             ("/path", 10);
     std::thread extra_thread_for_rebuild {ikdtree_rebuild};

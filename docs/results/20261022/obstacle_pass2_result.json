@@ -1,0 +1,79 @@
+{
+  "mode": "flight",
+  "route": "obstacle",
+  "success": true,
+  "arrival_tolerance": 0.5,
+  "precision_tolerance": 0.3,
+  "evaluation_gates_next_goal": true,
+  "truth_usage": "evaluation and abort only; no estimator/control pose injection",
+  "flight_height_envelope": [
+    0.6,
+    1.6
+  ],
+  "px4_parameters": {
+    "EKF2_AID_MASK": {
+      "success": true,
+      "integer": 24,
+      "real": 0.0
+    },
+    "EKF2_HGT_MODE": {
+      "success": true,
+      "integer": 3,
+      "real": 0.0
+    }
+  },
+  "measured_real_time_factor": 0.6493309056187423,
+  "reached": [
+    {
+      "index": 0,
+      "map_error": 0.22403291269518152,
+      "truth_error": 0.23924674444184413,
+      "precision_pass": true
+    },
+    {
+      "index": 1,
+      "map_error": 0.29729778130072126,
+      "truth_error": 0.4253256766880454,
+      "precision_pass": false
+    }
+  ],
+  "precision_success": false,
+  "landed_disarmed": true,
+  "metrics": {
+    "samples": 830,
+    "max_truth_error": 0.29897090485684363,
+    "rmse_truth_error": 0.2333713218556264,
+    "truth_path_length": 11.753975428977045
+  },
+  "message_counts": {
+    "state": 64,
+    "cmd": 6290,
+    "local": 1887,
+    "odom": 629,
+    "truth": 15708,
+    "cloud": 629
+  },
+  "submap_ids": [
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "loop_messages": [],
+  "map_voxels": 9263,
+  "route_height_metrics": {
+    "minimum_estimated": 0.7205723188849154,
+    "minimum_truth": 0.7451492552650751,
+    "minimum_command": 0.7301897047731264
+  },
+  "geometry_evaluation": {
+    "minimum_truth_center_surface_distance": 0.3873164571727994,
+    "nearest_static_object": "experiment_center_block",
+    "note": "center-to-static-shape distance, not full vehicle collision/contact proof; floor excluded"
+  }
+}

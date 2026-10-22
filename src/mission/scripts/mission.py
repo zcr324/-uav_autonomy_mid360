@@ -11,16 +11,20 @@
 #   ~odom_topic     (默认 /iris_0/odom_world)
 #   ~goal_topic     (默认 /iris_0/move_base_simple/goal)
 #   ~arrival_dist   (默认 0.5 m)
-#   ~timeout        (默认 60 s / 航点)
+#   ~timeout        (默认 60 墙钟秒 / 航点)
 #   ~takeoff_wait   (默认 20 s，等待起飞悬停后再开始任务)
 
 import ast
 import math
+import time
+import sys
 
 import rospy
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Bool
+from std_srvs.srv import SetBool
+from mavros_msgs.msg import State
 
 
 class Mission(object):
@@ -29,7 +33,9 @@ class Mission(object):
         self.ns = "iris_{}".format(drone_id)
 
         wp_str = rospy.get_param("~waypoints", "[]")
-        self.waypoints = ast.literal_eval(wp_str)
+        self.waypoints = ast.literal_eval(wp_str) if isinstance(wp_str, str) else wp_str
+        if not isinstance(self.waypoints, (list, tuple)):
+            raise ValueError("waypoints must be a list")
         if not self.waypoints:
             rospy.logwarn("[%s] empty waypoint list", self.ns)
 
@@ -39,17 +45,37 @@ class Mission(object):
 
         odom_topic = rospy.get_param("~odom_topic", "/{}/odom_world".format(self.ns))
         # ego-planner 的 waypoint_generator 订阅全局 /move_base_simple/goal（在其命名空间内 remap 到 ~goal）
-        goal_topic = rospy.get_param("~goal_topic", "/move_base_simple/goal")
+        goal_topic = rospy.get_param("~goal_topic", "/{}/move_base_simple/goal".format(self.ns))
 
         self.goal_pub = rospy.Publisher(goal_topic, PoseStamped, queue_size=10)
         self.done_pub = rospy.Publisher("/{}/mission/done".format(self.ns), Bool, queue_size=1, latch=True)
         self.odom_sub = rospy.Subscriber(odom_topic, Odometry, self.odom_cb, queue_size=10)
 
         self.cur_pos = None
+        self.odom_received = 0.0
+        self.state = None
+        self.state_sub = rospy.Subscriber("/{}/mavros/state".format(self.ns), State, self.state_cb, queue_size=1)
+        min_z=rospy.get_param("/framework/min_flight_z", -1e6)
+        max_z=rospy.get_param("/framework/max_flight_z", 1e6)
+        for wp in self.waypoints:
+            if len(wp) not in (3, 4) or not all(math.isfinite(float(v)) for v in wp):
+                raise ValueError("Each waypoint must contain 3 or 4 finite numbers")
+            if not min_z <= wp[2] <= max_z:
+                raise ValueError("Waypoint height lies outside configured flight envelope")
         rospy.loginfo("[%s] mission loaded with %d waypoints: %s", self.ns, len(self.waypoints), self.waypoints)
 
     def odom_cb(self, msg):
         self.cur_pos = msg.pose.pose.position
+        self.odom_received = time.monotonic()
+
+    def state_cb(self, msg):
+        self.state = msg
+
+    def planner_enable(self, enabled):
+        rospy.wait_for_service("/control_transfer/set_enabled", timeout=10)
+        response = rospy.ServiceProxy("/control_transfer/set_enabled", SetBool)(enabled)
+        if not response.success:
+            raise RuntimeError(response.message)
 
     @staticmethod
     def dist(a, b):
@@ -59,7 +85,18 @@ class Mission(object):
         return math.atan2(b[1] - a[1], b[0] - a[0])
 
     def run(self):
-        rospy.sleep(self.takeoff_wait)
+        if not self.waypoints:
+            self.done_pub.publish(Bool(False))
+            return False
+        time.sleep(self.takeoff_wait)
+        deadline = time.monotonic() + 60
+        while not rospy.is_shutdown():
+            if self.cur_pos is not None and time.monotonic()-self.odom_received < 2 and self.state and self.state.armed and self.state.mode == "OFFBOARD" and self.goal_pub.get_num_connections() > 0:
+                break
+            if time.monotonic() > deadline:
+                raise RuntimeError("Mission requires fresh odometry, armed OFFBOARD and goal subscriber")
+            time.sleep(.1)
+        self.planner_enable(True)
 
         for i, wp in enumerate(self.waypoints):
             if len(wp) >= 4:
@@ -85,23 +122,32 @@ class Mission(object):
                           self.ns, i + 1, len(self.waypoints), x, y, z)
             self.goal_pub.publish(goal)
 
-            deadline = rospy.Time.now() + rospy.Duration(self.timeout)
+            deadline = time.monotonic() + self.timeout
             arrived = False
             while not rospy.is_shutdown():
+                if time.monotonic()-self.odom_received > 2:
+                    raise RuntimeError("Mission odometry stale for >2 wall seconds")
+                if not self.state.armed or self.state.mode != "OFFBOARD":
+                    raise RuntimeError("Mission lost armed OFFBOARD")
                 if self.cur_pos is not None and self.dist(self.cur_pos, (x, y, z)) < self.arrival_dist:
                     arrived = True
                     break
-                if rospy.Time.now() > deadline:
+                if time.monotonic() > deadline:
                     break
-                rospy.sleep(0.2)
+                time.sleep(0.2)
 
             if arrived:
                 rospy.loginfo("[%s] waypoint %d/%d reached", self.ns, i + 1, len(self.waypoints))
             else:
-                rospy.logwarn("[%s] waypoint %d/%d timeout, skipping", self.ns, i + 1, len(self.waypoints))
+                rospy.logerr("[%s] waypoint %d/%d timeout; mission failed", self.ns, i + 1, len(self.waypoints))
+                self.done_pub.publish(Bool(False))
+                self.planner_enable(False)
+                return False
 
+        self.planner_enable(False)
         self.done_pub.publish(Bool(True))
         rospy.loginfo("[%s] mission finished", self.ns)
+        return True
 
 
 def _q_from_yaw(yaw):
@@ -115,4 +161,12 @@ def _q_from_yaw(yaw):
 if __name__ == "__main__":
     rospy.init_node("mission")
     m = Mission()
-    m.run()
+    try:
+        success = m.run()
+    except Exception as error:
+        rospy.logerr("Mission failed: %s", error)
+        m.done_pub.publish(Bool(False))
+        try: m.planner_enable(False)
+        except Exception: pass
+        success = False
+    sys.exit(0 if success else 1)

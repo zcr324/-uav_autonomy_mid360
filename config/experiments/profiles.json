@@ -1,0 +1,58 @@
+{
+  "profiles": {
+    "mapping": {
+      "loop": false,
+      "planning": false,
+      "control": false,
+      "estimator": "gps"
+    },
+    "navigation": {
+      "loop": true,
+      "planning": true,
+      "control": true,
+      "estimator": "gps"
+    },
+    "loop_observation": {
+      "loop": true,
+      "planning": false,
+      "control": false,
+      "estimator": "gps"
+    },
+    "navigation_ev": {
+      "loop": true,
+      "planning": true,
+      "control": true,
+      "estimator": "external_vision"
+    }
+  },
+  "scenes": {
+    "structured": {
+      "world": "structured_px4.world",
+      "x": 20,
+      "y": 4,
+      "z": 0.5,
+      "init_z": 0.055
+    },
+    "tunnel": {
+      "world": "tunnel_complex.world",
+      "x": 25,
+      "y": 0,
+      "z": 0.5,
+      "init_z": 0.055
+    },
+    "obstacle": {
+      "world": "structured_obstacle.world",
+      "x": 20,
+      "y": 4,
+      "z": 0.5,
+      "init_z": 0.055
+    },
+    "tunnel_featured": {
+      "world": "tunnel_featured.world",
+      "x": 25,
+      "y": 0,
+      "z": 0.5,
+      "init_z": 0.055
+    }
+  }
+}

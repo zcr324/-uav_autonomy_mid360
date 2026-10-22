@@ -1,0 +1,79 @@
+<launch>
+    
+    <arg name="obj_num" value="1" />
+    <arg name="drone_id" value="0" />
+
+    <arg name="map_size_x" value="100" />
+    <arg name="map_size_y" value="50" />
+    <arg name="map_size_z" value="3.0" />
+    <arg name="odom_topic" default="/iris_0/odom_world" />
+    <arg name="cloud_topic" default="/iris_0/map/cloud_registered" />
+
+    
+
+
+    <include file="$(find ego_planner)/launch/advanced_param_xtdrone.xml">
+        <arg name="drone_id" value="$(arg drone_id)" />
+        <arg name="map_size_x_" value="$(arg map_size_x)" />
+        <arg name="map_size_y_" value="$(arg map_size_y)" />
+        <arg name="map_size_z_" value="$(arg map_size_z)" />
+        <arg name="odometry_topic" value="$(arg odom_topic)" />
+        <arg name="obj_num_set" value="$(arg obj_num)" />
+        
+        
+        
+        
+        
+        
+        
+        <arg name="cloud_topic" value="$(arg cloud_topic)" />
+        
+        
+        
+        
+        
+        
+        
+        <arg name="max_vel" value="0.5" />
+        <arg name="max_acc" value="2.0" />
+        
+        <arg name="planning_horizon" value="5.0" />
+        <arg name="use_distinctive_trajs" value="true" />
+        
+        
+        <arg name="flight_type" value="1" />
+        
+        
+        <arg name="point_num" value="0" />
+        <arg name="point0_x" value="15" />
+        <arg name="point0_y" value="0" />
+        <arg name="point0_z" value="1.5" />
+        <arg name="point1_x" value="15" />
+        <arg name="point1_y" value="5" />
+        <arg name="point1_z" value="1.0" />
+        <arg name="point2_x" value="20" />
+        <arg name="point2_y" value="0" />
+        <arg name="point2_z" value="0.5" />
+        <arg name="point3_x" value="25" />
+        <arg name="point3_y" value="-10" />
+        <arg name="point3_z" value="0.5" />
+        <arg name="point4_x" value="45" />
+        <arg name="point4_y" value="-10" />
+        <arg name="point4_z" value="0.5" />
+        <arg name="point5_x" value="45" />
+        <arg name="point5_y" value="0" />
+        <arg name="point5_z" value="1.0" />
+    </include>
+    
+    <node pkg="ego_planner" name="iris_$(arg drone_id)_traj_server" type="traj_server" output="screen">
+    <param name="traj_server/time_forward" value="1.0" type="double" />
+    <remap from="/position_cmd" to="/iris_0/planning/pos_cmd" /><remap from="~planning/bspline" to="/iris_0/planning/bspline" /></node>
+    
+        
+        
+        
+    
+
+
+
+</launch>

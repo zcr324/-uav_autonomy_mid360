@@ -4,9 +4,9 @@
          依赖：仿真环境 + LIO + bridge 已运行。 -->
     <arg name="drone_id" default="0"/>
     <arg name="vehicle_type" default="iris"/>
-    <arg name="waypoints" default="[[0,8,1.5],[5,8,1.5],[5,12,1.5]]"/>
-    <arg name="start_communication" default="true"/>
-    <arg name="do_takeoff" default="true"/>
+    <arg name="waypoints" default="[]"/>
+    <arg name="start_communication" default="false"/>
+    <arg name="do_takeoff" default="false"/>
 
     <group if="$(arg start_communication)">
         <node pkg="mission" type="multirotor_communication.py" name="communication"

@@ -1,0 +1,7 @@
+{
+  "accepted_unique_constraints": 0,
+  "constraints": [],
+  "truth_consistent_constraints": 0,
+  "note": "Consistency thresholds are provisional 0.5m/5deg; accepted matches alone do not prove trajectory benefit",
+  "loop_benefit_demonstrated": false
+}

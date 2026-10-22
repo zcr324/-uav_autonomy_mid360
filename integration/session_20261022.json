@@ -1,0 +1,25 @@
+{
+  "first_run": "/home/zcr/uav_ws/integration/runs/20261022_000551",
+  "runs": [
+    "/home/zcr/uav_ws/integration/runs/20261022_000551",
+    "/home/zcr/uav_ws/integration/runs/20261022_003158",
+    "/home/zcr/uav_ws/integration/runs/20261022_004609",
+    "/home/zcr/uav_ws/integration/runs/20261022_005341",
+    "/home/zcr/uav_ws/integration/runs/20261022_005919",
+    "/home/zcr/uav_ws/integration/runs/20261022_011915",
+    "/home/zcr/uav_ws/integration/runs/20261022_014950",
+    "/home/zcr/uav_ws/integration/runs/20261022_015945",
+    "/home/zcr/uav_ws/integration/runs/20261022_022032"
+  ],
+  "budget_minutes": 240,
+  "started_china": "2026-10-22 00:00",
+  "clock_regression": "/home/zcr/uav_ws/integration/runs/20261022_000551/traj_clock_test.log",
+  "replays": [
+    "/home/zcr/uav_ws/integration/replays/20261022_tunnel_default",
+    "/home/zcr/uav_ws/integration/replays/20261022_featured_async_default",
+    "/home/zcr/uav_ws/integration/replays/20261022_featured_submaps_default",
+    "/home/zcr/uav_ws/integration/replays/20261022_featured_submaps_retry",
+    "/home/zcr/uav_ws/integration/replays/20261022_featured_submaps_icp",
+    "/home/zcr/uav_ws/integration/replays/20261022_backend_queue_regression"
+  ]
+}

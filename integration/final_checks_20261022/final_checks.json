@@ -1,0 +1,41 @@
+{
+  "checked_at_china": "2026-10-22 02:33:35",
+  "full_build_exit": 0,
+  "frame_contracts_pass": true,
+  "traj_clock_pass": true,
+  "backend_queue_replay": {
+    "success": true,
+    "input_bag": "/home/zcr/uav_ws/integration/replays/20261022_featured_submaps_retry/outputs.bag",
+    "input_topics": [
+      "/submap_pose",
+      "/clouds_submap",
+      "/inter_triangles",
+      "/lc_triangles",
+      "/loop_closure_tranformation"
+    ],
+    "mode": "backend",
+    "refine_loop_icp": false,
+    "omit_loop_constraints": false,
+    "rate": 4.0,
+    "pgo_config": "/home/zcr/uav_ws/src/lio/loop_optimization/launch/loopopt_config_avia.yaml",
+    "lcd_config": "/home/zcr/uav_ws/src/lio/STD/config/config_mid360.yaml",
+    "duration": 233.295230495,
+    "optimized_poses": 34,
+    "accepted_loop_log_lines": 0,
+    "native_map_saved": true
+  },
+  "python_syntax_files": 20,
+  "launch_xml_files": 13,
+  "diff_check_exit": 0,
+  "original_sources": {
+    "checked": 819,
+    "changed_or_missing": []
+  },
+  "port_listeners": {
+    "4560": false,
+    "11311": false,
+    "11321": false,
+    "11331": false
+  },
+  "remaining_owned_runtime_processes": []
+}

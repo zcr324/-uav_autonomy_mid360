@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="example">
+
+  <xacro:property name="base_link_mass" value="1.5"/>
+  <xacro:property name="imu_link_mass" value="0.015"/>
+  <xacro:property name="rotor_mass" value="0.005"/>
+  <xacro:property name="rotor_radius" value="0.128"/>
+  <xacro:property name="rotor_length" value="0.005"/>
+  <xacro:property name="mesh_scale" value="1 1 1"/>
+  <xacro:property name="base_mesh_uri" value="/home/byy/catkin_ws/src/livox_laser_simulation/meshes/ZD550_motors_amend.dae"/>
+  <xacro:property name="rotor_ccw_mesh_uri" value="/home/byy/catkin_ws/src/livox_laser_simulation/meshes/iris_prop_ccw.dae"/>
+  <xacro:property name="rotor_cw_mesh_uri" value="/home/byy/catkin_ws/src/livox_laser_simulation/meshes/iris_prop_cw.dae"/>
+
+   <!-- Define inertial macro -->
+  <xacro:macro name="inertial1" params="mass:=1.5 ixx:=0.029125 ixy:=0 ixz:=0 iyy:=0.029125 iyz:=0 izz:=0.055225">
+    <inertial>
+      <origin xyz="0 0 0"/>
+      <mass value="1.5"/>
+      <inertia ixx="${ixx}" ixy="${ixy}" ixz="${ixz}" iyy="${iyy}" iyz="${iyz}" izz="${izz}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- Define visual macro -->
+  <xacro:macro name="visual1" params="name mesh_uri scale">
+    <visual name="${name}">
+      <geometry>
+        <mesh filename="${mesh_uri}" scale="${scale}"/>
+      </geometry>
+    </visual>
+  </xacro:macro>
+
+  <!-- Define collision macro -->
+  <xacro:macro name="collision1" params="name radius length">
+    <collision name="${name}">
+      <geometry>
+        <cylinder radius="${radius}" length="${length}"/>
+      </geometry>
+    </collision>
+  </xacro:macro>
+
+  <!-- Base link -->
+  <link name="base_link">
+    <xacro:inertial1 />
+    <xacro:collision1 name="base_link_inertia_collision_4" radius="0.47" length="0.005"/>
+    <xacro:visual1 name="base_link_inertia_visual_4" mesh_uri="${base_mesh_uri}" scale="${mesh_scale}"/>
+  </link>
+  
+  <!-- IMU link -->
+  <link name="imu_link">
+    <xacro:inertial1 mass="${imu_link_mass}" ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/>
+  </link>
+
+  <joint name="imu_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="0" effort="0" velocity="0"/>
+    <dynamics damping="0" friction="0"/>
+  </joint>
+  
+  <!-- Rotor links and joints -->
+  <xacro:macro name="rotor" params="index xyz rpy mesh_uri">
+    <link name="rotor_${index}">
+      <xacro:inertial1 mass="${rotor_mass}" ixx="9.75e-07" ixy="0" ixz="0" iyy="0.000273104" iyz="0" izz="0.000274004"/>
+      <xacro:collision1 name="rotor_${index}_collision" radius="${rotor_radius}" length="${rotor_length}"/>
+      <xacro:visual1 name="rotor_${index}_visual" mesh_uri="${mesh_uri}" scale="${mesh_scale}"/>
+    </link>
+    <joint name="rotor_${index}_joint" type="revolute">
+      <parent link="base_link"/>
+      <child link="rotor_${index}"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-1e+16" upper="1e+16" effort="0" velocity="0"/>
+      <dynamics damping="0" friction="0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- Instantiate rotors -->
+  <xacro:rotor index="0" xyz="0.2 -0.2 0.34" rpy="0 0 0" mesh_uri="${rotor_ccw_mesh_uri}"/>
+  <xacro:rotor index="1" xyz="-0.2 0.2 0.34" rpy="0 0 0" mesh_uri="${rotor_ccw_mesh_uri}"/>
+  <xacro:rotor index="2" xyz="0.2 0.2 0.34" rpy="0 0 0" mesh_uri="${rotor_cw_mesh_uri}"/>
+  <xacro:rotor index="3" xyz="-0.2 -0.2 0.34" rpy="0 0 0" mesh_uri="${rotor_cw_mesh_uri}"/>
+
+  <!-- Plugins -->
+  <gazebo reference="base_link">
+    <plugin name="rosbag" filename="libgazebo_multirotor_base_plugin.so">
+      <robotNamespace/>
+      <linkName>base_link</linkName>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="rotor_0">
+    <plugin name="front_right_motor_model" filename="libgazebo_motor_model.so">
+      <robotNamespace/>
+      <jointName>rotor_0_joint</jointName>
+      <linkName>rotor_0</linkName>
+      <turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>1100</maxRotVelocity>
+      <motorConstant>8.54858e-06</motorConstant>
+      <momentConstant>0.06</momentConstant>
+      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
+      <motorNumber>0</motorNumber>
+      <rotorDragCoefficient>0.000175</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+      <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+    </plugin>
+  </gazebo>
+<xacro:include filename="$(find livox_laser_simulation)/urdf/mid360_IMU_platform.xacro"/>
+<xacro:LivoxMid360_IMU_Plantform /> 
+<!--xacro:include filename="$(find livox_laser_simulation)/urdf/livox_mid360.xacro"/>
+<xacro:Livox_Mid40 name="livox"/--> 
+
+  <!-- More plugins -->
+
+</robot>
+

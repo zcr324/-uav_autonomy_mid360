@@ -1,0 +1,27 @@
+<launch><arg name="pgo_config" default="$(find loop_optimization)/launch/loopopt_config_avia.yaml"/>
+  <arg name="loop" default="true"/>
+  <arg name="lcd_config" default="$(find std_loop)/config/config_mid360.yaml"/>
+  <arg name="save_dir" default="$(env UAV_WS)/integration/logs/ltaom/"/>
+  <param name="multisession_mode" value="0"/>
+  <param name="SaveDir" value="$(arg save_dir)"/>
+  <param name="save_map" value="false"/><param name="SavePCD" value="false"/>
+  <rosparam command="load" file="$(find fast_lio)/config/mid360.yaml"/>
+  <param name="feature_extract_enable" value="false"/><param name="point_filter_num" value="3"/>
+  <param name="max_iteration" value="3"/><param name="dense_map_enable" value="true"/>
+  <param name="filter_size_surf" value="0.5"/><param name="filter_size_map" value="0.5"/>
+  <param name="cube_side_length" value="1000"/>
+  <node pkg="nodelet" type="nodelet" name="lio_manager" args="manager" output="screen">
+    <param name="num_worker_threads" value="1"/>
+  </node>
+  <node pkg="nodelet" type="nodelet" name="fastlio_loader"
+    args="load fast_lio/fastlio_plugin lio_manager" output="screen"
+    launch-prefix="python3 $(env UAV_WS)/tools/wait_sim_sensors.py"/>
+  <group if="$(arg loop)">
+    <param name="lcd_config_path" value="$(arg lcd_config)"/>
+    <rosparam command="load" file="$(arg pgo_config)"/>
+    <node pkg="nodelet" type="nodelet" name="std_loader"
+      args="load std_loop/loop_detection_plugin lio_manager" output="screen"
+      launch-prefix="bash -c 'sleep 2; exec $0 $@'"/>
+    <node pkg="loop_optimization" type="loop_optimization_node" name="loop_optimization" output="screen"/>
+  </group>
+</launch>

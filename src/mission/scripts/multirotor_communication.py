@@ -5,6 +5,7 @@
 # 修改：pyquaternion -> tf.transformations；其余逻辑保持原版。
 
 import sys
+import time
 
 import rospy
 import tf.transformations as tft
@@ -58,7 +59,14 @@ class Communication(object):
         rcl_except = ParamValue(4, 0.0)
         try:
             self.set_param_srv.wait_for_service(timeout=30)
-            self.set_param_srv("COM_RCL_EXCEPT", rcl_except)
+            deadline = time.monotonic() + 25
+            while not rospy.is_shutdown():
+                result = self.set_param_srv("COM_RCL_EXCEPT", rcl_except)
+                if result.success:
+                    break
+                if time.monotonic() > deadline:
+                    raise RuntimeError("MAVROS parameter cache not ready for COM_RCL_EXCEPT")
+                time.sleep(.5)
         except Exception as e:
             rospy.logwarn(self.vehicle_type + '_' + self.vehicle_id + ": COM_RCL_EXCEPT set failed: %s", e)
 
@@ -98,9 +106,9 @@ class Communication(object):
         target_raw_pose.yaw_rate = yaw_rate
 
         if self.motion_type == 0:
-            target_raw_pose.type_mask = 0b001111111000  # 使用 position + yaw + yaw_rate
+            target_raw_pose.type_mask = 504  # ignore velocity/acceleration; keep position/yaw/yaw_rate
         if self.motion_type == 1:
-            target_raw_pose.type_mask = 0b111111000111  # 使用 velocity + yaw_rate
+            target_raw_pose.type_mask = 1479  # ignore position/acceleration/yaw; keep velocity/yaw_rate
         if self.motion_type == 2:
             target_raw_pose.type_mask = PositionTarget.IGNORE_PX + PositionTarget.IGNORE_PY + PositionTarget.IGNORE_PZ \
                             + PositionTarget.IGNORE_VX + PositionTarget.IGNORE_VY + PositionTarget.IGNORE_VZ \
@@ -115,7 +123,7 @@ class Communication(object):
         self.target_motion = self.construct_target(x=msg.position.x, y=msg.position.y, z=msg.position.z, yaw=yaw)
 
     def cmd_pose_enu_callback(self, msg):
-        self.coordinate_frame = 1  # FRAME_LOCAL_NED（XTDrone 约定：位置须已是 NED 系）
+        self.coordinate_frame = 1  # FRAME_LOCAL_NED enum; ROS values remain ENU, converted by MAVROS
         self.motion_type = 0
         yaw = msg.orientation.x
         yaw_rate = msg.orientation.y
@@ -159,7 +167,7 @@ class Communication(object):
             self.hover()
 
     def cmd_callback(self, msg):
-        if msg.data == self.last_cmd or msg.data == '' or msg.data == 'stop controlling':
+        if msg.data == '' or msg.data == 'stop controlling':
             return
 
         elif msg.data == 'ARM':
@@ -187,7 +195,7 @@ class Communication(object):
 
     def arm(self):
         try:
-            if self.armService(True):
+            if self.armService(True).success:
                 return True
         except Exception as e:
             rospy.logwarn(self.vehicle_type + '_' + self.vehicle_id + ": arm exception: %s", e)
@@ -196,7 +204,7 @@ class Communication(object):
 
     def disarm(self):
         try:
-            if self.armService(False):
+            if self.armService(False).success:
                 return True
         except Exception as e:
             rospy.logwarn(self.vehicle_type + '_' + self.vehicle_id + ": disarm exception: %s", e)
@@ -204,6 +212,9 @@ class Communication(object):
         return False
 
     def hover(self):
+        if self.current_position is None:
+            rospy.logwarn("Cannot hover before local pose arrives")
+            return
         self.coordinate_frame = 1
         self.motion_type = 0
         self.target_motion = self.construct_target(x=self.current_position.x, y=self.current_position.y, z=self.current_position.z, yaw=self.current_yaw)
@@ -215,7 +226,7 @@ class Communication(object):
             self.hover()
             return True
         try:
-            if self.flightModeService(custom_mode=self.flight_mode):
+            if self.flightModeService(custom_mode=self.flight_mode).mode_sent:
                 rospy.loginfo(self.vehicle_type + '_' + self.vehicle_id + ": " + self.flight_mode)
                 return True
             else:

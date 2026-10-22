@@ -1,0 +1,16 @@
+<launch><arg name="pgo_config" default="$(find loop_optimization)/launch/loopopt_config_avia.yaml"/>
+  <arg name="estimator" default="gps"/>
+  <arg name="px4_workdir" default="$(env UAV_WS)/integration/logs/px4_integrated"/>
+  <arg name="save_dir" default="$(env UAV_WS)/integration/logs/ltaom/"/>
+  <arg name="lcd_config" default="$(find std_loop)/config/config_mid360.yaml"/>
+  <arg name="init_z" default="0.055" /><arg name="gui" default="true" /><arg name="loop" default="true" />
+  <arg name="planning" default="true" /><arg name="control" default="false" />
+  <arg name="x" default="20" /><arg name="y" default="4" /><arg name="z" default="0.5" />
+  <arg name="world" default="$(find sim_env)/worlds/structured_px4.world" />
+  <param name="/framework/world" value="$(arg world)"/>
+  <param name="/framework/control" value="$(arg control)"/>
+  <include file="$(find sim_env)/launch/team_sim.launch">
+    <arg name="estimator" value="$(arg estimator)"/><arg name="px4_workdir" value="$(arg px4_workdir)"/><arg name="gui" value="$(arg gui)" /><arg name="world" value="$(arg world)" />
+    <arg name="x" value="$(arg x)" /><arg name="y" value="$(arg y)" /><arg name="z" value="$(arg z)" />
+  </include>
+  <include file="$(find sim_env)/launch/modules.launch"><arg name="pgo_config" value="$(arg pgo_config)"/><arg name="save_dir" value="$(arg save_dir)"/><arg name="lcd_config" value="$(arg lcd_config)"/><arg name="loop" value="$(arg loop)" /><arg name="planning" value="$(arg planning)" /><arg name="control" value="$(arg control)" /><arg name="x" value="$(arg x)" /><arg name="y" value="$(arg y)" /><arg name="z" value="$(arg init_z)" /></include></launch>

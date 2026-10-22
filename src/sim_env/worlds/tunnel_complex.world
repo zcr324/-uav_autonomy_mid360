@@ -1,0 +1,725 @@
+<sdf version="1.6">
+  <world name="real_branch_tunnel">
+
+    <!-- 光照与场景 -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <scene>
+      <ambient>0.25 0.25 0.25 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>false</shadows>
+    </scene>
+
+    <!-- ===================== -->
+    <!-- 主隧道参数说明（逻辑） -->
+    <!-- 主隧道沿 x 方向，长度 30m -->
+    <!-- 内宽 3.0m，墙厚 0.2m，高 2.5m -->
+    <!-- 所以左右墙中心在 y = ±1.6 -->
+    <!-- 顶板中心 z = 2.6，厚 0.2 -->
+    <!-- ===================== -->
+
+    <!-- 主隧道顶板 -->
+    <model name="main_ceiling">
+      <static>true</static>
+      <pose>45 0 2.6 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>90 3.4 0.2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>90 3.4 0.2</size></box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/RedTransparent</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 主隧道右墙，切成三段，中间留开口 -->
+    <!-- 开口宽度2.5m，中心分别在x=25m和x=45m -->
+    <!-- 第一段：x=0m 到 x=23.75m -->
+    <model name="main_wall_right1">
+      <static>true</static>
+      <pose>11.875 -1.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>23.75 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>23.75 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+    <!-- 第二段：x=26.25m 到 x=43.75m -->
+    <model name="main_wall_right2">
+      <static>true</static>
+      <pose>35 -1.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>17.5 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>17.5 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+    <!-- 第三段：x=46.25m 到 x=90m -->
+    <model name="main_wall_right3">
+      <static>true</static>
+      <pose>68.125 -1.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>43.75 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>43.75 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+    
+
+    <!-- 主隧道左墙：切成四段，中间留开口，形成真正岔口入口 -->
+    <!-- 第一开口宽度 3.4m，中心在 x = 15 -->
+    <!-- 第二三开口宽度 2.9m，中心分别在 x = 60 x = 65 -->
+    <!-- 第一段：x = 0 到 13.3 -->
+    <model name="main_wall_left1">
+      <static>true</static>
+      <pose>6.65 1.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>13.3 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>13.3 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 第二段：x = 16.7 到 58.55 -->
+    <model name="main_wall_left2">
+      <static>true</static>
+      <pose>37.625 1.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>41.85 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>41.85 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <!-- 第三段：x = 61.45 到 63.55 -->
+    <model name="main_wall_left3">
+      <static>true</static>
+      <pose>62.5 1.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>1.05 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>1.05 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <!-- 第四段：x = 66.45 到 87.1 -->
+    <model name="main_wall_left4">
+      <static>true</static>
+      <pose>76.775 1.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>20.65 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>20.65 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ===================== -->
+    <!-- 支路（真正的岔口） -->
+    <!-- 从主隧道左侧开口处分出去，沿 +y 方向延伸 -->
+    <!-- 支路中心线 x = 15 -->
+    <!-- 支路长度 10m -->
+    <!-- 支路内宽 3.0m，墙厚 0.2m，高 2.5m -->
+    <!-- ===================== -->
+
+    <!-- 支路左墙（x = 13.4） -->
+    <model name="branch_wall_left">
+      <static>true</static>
+      <pose>13.4 6.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 10 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 10 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 支路右墙（x = 16.6） -->
+    <model name="branch_wall_right">
+      <static>true</static>
+      <pose>16.6 6.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 10 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 10 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 支路顶板 -->
+    <model name="branch_ceiling">
+      <static>true</static>
+      <pose>15 6.6 2.6 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>3.4 10 0.2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>3.4 10 0.2</size></box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/RedTransparent</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+
+    <!-- 可选：支路末端封口墙 -->
+    <!-- 如果你想让支路尽头封死就保留；如果想让它继续通向更远，就删掉这个 model -->
+    <model name="branch_end_wall">
+      <static>true</static>
+      <pose>15 11.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>3.4 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>3.4 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+
+    <!-- ===================== -->
+    <!-- 回环支路 -->
+    <!-- 从主隧道右侧开口处分出去，先沿 -y 方向延伸 10 m ，再沿 +x 方向延伸 20 m，最后向 +y 方向延伸回主隧道-->
+    <!-- 支路1 中心线 x = 25 -->
+    <!-- 支路1长度 10m -->
+    <!-- 支路1内宽 2.1 m，墙厚 0.2m，高 2.5m -->
+    <!-- ===================== -->
+
+
+
+    <!-- 支路1左墙（x = 23.85） -->
+    <model name="branch1_wall_left">
+      <static>true</static>
+      <pose>23.85 -6.7 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 10.4 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 10.4 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+    <!-- 支路1右墙（x = 26.15） -->
+    <model name="branch1_wall_right">
+      <static>true</static>
+      <pose>26.15 -5.1 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 7.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 7.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+    <!-- 支路1顶板 -->
+    <model name="branch1_ceiling">
+      <static>true</static>
+      <pose>25 -5.1 2.6 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>2.5 7.2 0.2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>2.5 7.2 0.2</size></box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/RedTransparent</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+
+
+    <!-- 分隧道1右墙（y = -11.8 ） -->
+    <model name="tunnel1_wall_right">
+      <static>true</static>
+      <pose>35 -11.8 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>22.5 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>22.5 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+
+    <!-- 分隧道1左墙（y = -8.6 ） -->
+    <model name="tunnel1_wall_left">
+      <static>true</static>
+      <pose>35 -8.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>17.5 0.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>17.5 0.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+    <!-- 分隧道1顶板 -->
+    <model name="tunnel1_ceiling">
+      <static>true</static>
+      <pose>35 -10.2 2.6 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>22.5 3.4 0.2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>22.5 3.4 0.2</size></box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/RedTransparent</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+
+
+
+
+    <!-- 支路2左墙（x = 43.85 ） -->
+    <model name="branch2_wall_left">
+      <static>true</static>
+      <pose>43.85 -5.1 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 7.2 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 7.2 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+
+
+    <!-- 支路2右墙（x = 46.15） -->
+    <model name="branch2_wall_right">
+      <static>true</static>
+      <pose>46.15 -6.7 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 10.4 2.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 10.4 2.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+            <emissive>0.15 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+
+    
+
+
+
+
+    <!-- 支路2顶板 -->
+<model name="branch2_ceiling">
+  <static>true</static>
+  <pose>45 -5.1 2.6 0 0 0</pose>
+  <link name="link">
+    <collision name="collision">
+      <geometry>
+        <box><size>2.5 7.2 0.2</size></box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <geometry>
+        <box><size>2.5 7.2 0.2</size></box>
+      </geometry>
+      <material>
+        <script>
+          <uri>file://media/materials/scripts/gazebo.material</uri>
+          <name>Gazebo/RedTransparent</name>
+        </script>
+      </material>
+    </visual>
+  </link>
+</model>
+
+
+
+    
+
+    <!-- ===================== -->
+    <!-- 一些障碍物（都放在通道内部） -->
+    <!-- ===================== -->
+
+    <!-- 主隧道左侧：绿色小箱体 -->
+    <model name="obstacle_main_left_small">
+      <static>true</static>
+      <pose>6 1.25 0.4 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.5 0.5 0.8</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.5 0.5 0.8</size></box>
+          </geometry>
+          <material>
+            <ambient>0 1 0 1</ambient>
+            <diffuse>0 1 0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 主隧道右侧：蓝色圆柱 -->
+    <model name="obstacle_main_right_cylinder">
+      <static>true</static>
+      <pose>21 0.0 0.45 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>0.25</radius>
+              <length>0.9</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.25</radius>
+              <length>0.9</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0 0 1 1</ambient>
+            <diffuse>0 0 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 支路右侧：橙色小方柱 -->
+    <model name="obstacle_branch_right_small">
+      <static>true</static>
+      <pose>16.0 7.8 0.35 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.4 0.4 0.7</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.4 0.4 0.7</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0.5 0 1</ambient>
+            <diffuse>1 0.5 0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 支路内障碍物 -->
+    <model name="obstacle_branch_1">
+      <static>true</static>
+      <pose>15 8 0.6 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.7 0.7 1.2</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.7 0.7 1.2</size></box>
+          </geometry>
+          <material>
+            <ambient>0 0 1 1</ambient>
+            <diffuse>0 0 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <!-- 动态障碍物 -->
+    <!-- 长宽为0.6m，高为1.0m的红色长方体，在-1.2m到1.2m间移动，用move.py程序调控 -->
+    <model name="dynamic_obstacle">
+      <pose>15 0.0 0.5 0 0 0</pose>
+      <link name="body">
+        <inertial>
+          <mass>1.0</mass>
+          <inertia>
+            <ixx>0.1133</ixx><ixy>0</ixy><ixz>0</ixz>
+            <iyy>0.1133</iyy><iyz>0</iyz>
+            <izz>0.06</izz>
+          </inertia>
+        </inertial>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.6 0.6 1.0</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.6 0.6 1.0</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

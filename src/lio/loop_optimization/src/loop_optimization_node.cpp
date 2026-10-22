@@ -1,3 +1,4 @@
+#include <set>
 /*This code is the implementation of our paper "LTA-OM: Long-Term Association
 LiDAR-Inertial Odometry and Mapping".
 
@@ -270,21 +271,21 @@ void loopClosureKPPairCallback(const sensor_msgs::PointCloud2ConstPtr &cloud_msg
     LCT_buf_.push_back(cloud_msg);
     mtx_sub_.unlock();
 }
-void removeLC(const int curr_node_idx, const int prev_node_idx)
+std::set<std::pair<int, int>> rejected_lc_pairs;
+void removeLC(const int curr_node_idx, const int prev_node_idx,
+              std::deque<sensor_msgs::PointCloud2ConstPtr>& pending)
 {
-    int l = 0;
-    while (l < LCT_buf_.size())             // remove rejected LC pairs from LC KP messgage buffer
-    {
-        auto LCTmsg = LCT_buf_[l];
-        pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>());
-        pcl::fromROSMsg(*(LCTmsg), *cloud_tmp);
-        int prev_idx_lct = cloud_tmp->points[0].intensity;
-        int curr_idx_lct = cloud_tmp->points[1].intensity;
-        if (curr_idx_lct == curr_node_idx && prev_idx_lct == prev_node_idx)
-            break;
-        l++;
+    // Only the PGO worker owns this detached batch and rejection history.
+    // Never traverse callback-owned LCT_buf_ without its input mutex.
+    rejected_lc_pairs.insert({prev_node_idx, curr_node_idx});
+    for (auto it = pending.begin(); it != pending.end();) {
+        pcl::PointCloud<PointType> cloud;
+        pcl::fromROSMsg(**it, cloud);
+        if (cloud.size() < 2 ||
+            (int(cloud[0].intensity) == prev_node_idx &&
+             int(cloud[1].intensity) == curr_node_idx)) it = pending.erase(it);
+        else ++it;
     }
-    if (l < LCT_buf_.size()) LCT_buf_.erase(LCT_buf_.begin()+l);
 }
 void loopClosureCallback(const geometry_msgs::PoseWithCovarianceConstPtr& lc_msg)
 {
@@ -406,32 +407,45 @@ float calculateOverlapScore(const pcl::PointCloud<PointType>::Ptr& currKeyframeC
 //  return (float(count1)/float(uomp_3d.size())) * (float(count2)/float(cloud_in_transed->size()));
 }
 
-void pubPath()
+void pubPath(bool graph_locked = false)
 {
-    if (keyframes_.empty())  return;
-//  if (loop_corr_counter!=2) return;
+    std::deque<KeyFrame> snapshot;
+    {
+        if (graph_locked) {
+            // optimize() already owns mtx_pgo_; do not acquire it recursively.
+            std::lock_guard<std::mutex> sub_lock(mtx_sub_);
+            snapshot = keyframes_;
+        } else {
+            std::unique_lock<std::mutex> pgo_lock(mtx_pgo_, std::defer_lock);
+            std::unique_lock<std::mutex> sub_lock(mtx_sub_, std::defer_lock);
+            std::lock(pgo_lock, sub_lock);
+            snapshot = keyframes_;
+        }
+    }
+    if (snapshot.empty()) return;
     nav_msgs::Odometry odomAftPGO;
     nav_msgs::PathPtr pathAftPGO (new nav_msgs::Path());
-    pathAftPGO->header.frame_id = "/camera_init"; //"/world";
-    for (int i=0; i < keyframes_.size(); i++)
+    pathAftPGO->header.frame_id = "camera_init"; //"/world";
+    for (int i=0; i < snapshot.size(); i++)
     {
+        if (!snapshot[i].pose_opt_set) continue;
         nav_msgs::Odometry odomAftPGOthis;
-        odomAftPGOthis.header.frame_id = "/camera_init"; //"/world";
-        odomAftPGOthis.child_frame_id = "/aft_pgo";
-        odomAftPGOthis.header.stamp = keyframes_[i].KeyTime;
+        odomAftPGOthis.header.frame_id = "camera_init"; //"/world";
+        odomAftPGOthis.child_frame_id = "aft_pgo";
+        odomAftPGOthis.header.stamp = snapshot[i].KeyTime;
         odomAftPGOthis.header.seq = i;
-        odomAftPGOthis.pose.pose.position.x = keyframes_[i].KeyPoseOpt.x;
-        odomAftPGOthis.pose.pose.position.y = keyframes_[i].KeyPoseOpt.y;
-        odomAftPGOthis.pose.pose.position.z = keyframes_[i].KeyPoseOpt.z;
+        odomAftPGOthis.pose.pose.position.x = snapshot[i].KeyPoseOpt.x;
+        odomAftPGOthis.pose.pose.position.y = snapshot[i].KeyPoseOpt.y;
+        odomAftPGOthis.pose.pose.position.z = snapshot[i].KeyPoseOpt.z;
 
-        odomAftPGOthis.pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(keyframes_[i].KeyPoseOpt.roll, keyframes_[i].KeyPoseOpt.pitch, keyframes_[i].KeyPoseOpt.yaw);
+        odomAftPGOthis.pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(snapshot[i].KeyPoseOpt.roll, snapshot[i].KeyPoseOpt.pitch, snapshot[i].KeyPoseOpt.yaw);
 
         geometry_msgs::PoseStamped poseStampAftPGO;
         poseStampAftPGO.header = odomAftPGOthis.header;
         poseStampAftPGO.pose = odomAftPGOthis.pose.pose;
 
         pathAftPGO->header.stamp = odomAftPGOthis.header.stamp;
-        pathAftPGO->header.frame_id = "/camera_init"; //"/world";
+        pathAftPGO->header.frame_id = "camera_init"; //"/world";
         pathAftPGO->poses.push_back(poseStampAftPGO);
     }
     pubPathAftPGO.publish(pathAftPGO);
@@ -442,7 +456,7 @@ void pubPath()
 visualization_msgs::Marker lines_;
 void pubLoopClosureVisualization(const int prev_idx, const int curr_idx){
     lines_.header.stamp = ros::Time::now();
-    lines_.header.frame_id = "/camera_init"; //"/world";
+    lines_.header.frame_id = "camera_init"; //"/world";
     lines_.ns = "loopclosure_lines";
     lines_.action = visualization_msgs::Marker::ADD;
     lines_.pose.orientation.w = 1.0f;
@@ -603,7 +617,8 @@ void loadPriorMapAndPoses()
 int last_kfsize = 0;
 void correctPosesAndSaveTxt()
 {
-    if (last_kfsize==keyframes_.size()) return;
+    // Loop constraints can change poses without changing keyframe count.
+    // Always refresh optimized poses after an optimization.
     last_kfsize = keyframes_.size();
     auto start1 = std::chrono::system_clock::now();
     poses_opt_file.open(poses_opt_fname, ios::out | ios::trunc);
@@ -932,7 +947,6 @@ else
 //        printGraph(complete_graph);
         opt_debug_file <<  "[FPR]: accept, everything is ok." << std::endl;
         loop_corr_counter++;
-        pubPath();
 
         factors_toremove.clear();
         gts_graph_.resize(0);
@@ -958,6 +972,7 @@ if (multisession_mode == 1)
 
         pubLoopClosureVisualization(lc_prev_idx, lc_curr_idx);
         correctPosesAndSaveTxt();
+        pubPath(true);
 #ifdef marg
         if (lc_prev_idx >= 0)
             marginalizeKPPairFactor(lc_prev_idx, lc_curr_idx, false);
@@ -1223,21 +1238,24 @@ else
 
 void main_pgo()
 {
-    while(1)
+    while(ros::ok())
     {
-        sleep(0.001);
-        if (odom_buf_.empty() || cloud_buf_.empty())
-            continue;
-        mtx_sub_.lock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        decltype(loopclosure_buf_) loopclosure_pending;
+        decltype(interT_buf_) interT_pending;
+        decltype(inter2T_buf_) inter2T_pending;
+        decltype(LCT_buf_) LCT_pending;
         {
-            // turn raw messages into stuff in a containner
-            while (!odom_buf_.empty() && odom_buf_.front()->header.stamp.toSec() < cloud_buf_.front()->header.stamp.toSec())
-                odom_buf_.pop_front();
-            if (odom_buf_.empty())
-            {
-                mtx_sub_.unlock();
-                continue;
-            }
+            std::unique_lock<std::mutex> input_lock(mtx_sub_);
+            const bool have_submap = !odom_buf_.empty() && !cloud_buf_.empty();
+            const bool have_constraints = !loopclosure_buf_.empty() || !interT_buf_.empty() || !LCT_buf_.empty();
+            // Secondary adjacent factors are intentionally disabled below.
+            inter2T_buf_.clear();
+            if (!have_submap && !have_constraints) continue;
+            if (have_submap) {
+                while (!odom_buf_.empty() && odom_buf_.front()->header.stamp < cloud_buf_.front()->header.stamp)
+                    odom_buf_.pop_front();
+                if (!odom_buf_.empty()) {
             if (fabs(odom_buf_.front()->header.stamp.toSec() - cloud_buf_.front()->header.stamp.toSec()) > 1)
                 ROS_WARN_STREAM("Too large odom lidar msg time stamp difference!");
 
@@ -1262,16 +1280,32 @@ void main_pgo()
             opt_debug_file << "[Add Subamp Info]: akeyframe.KeyPose: " << akeyframe.KeyPose.x << " " << akeyframe.KeyPose.y << " " << akeyframe.KeyPose.z << std::endl;
             opt_debug_file << "[Add Subamp Info]: passed_dis: " <<passed_dis;
             opt_debug_file << ", keyframes size(): " << keyframes_.size() << std::endl;
-        }
-        mtx_sub_.unlock();
 
+                }
+            }
+            // Detach constraint batches so callbacks can append safely while
+            // geometric checks and optimization operate on a stable batch.
+            loopclosure_pending.swap(loopclosure_buf_);
+            interT_pending.swap(interT_buf_);
+            LCT_pending.swap(LCT_buf_);
+            for (auto it = LCT_pending.begin(); it != LCT_pending.end();) {
+                pcl::PointCloud<PointType> cloud;
+                pcl::fromROSMsg(**it, cloud);
+                if (cloud.size() < 2 || rejected_lc_pairs.count(
+                        {int(cloud[0].intensity), int(cloud[1].intensity)}))
+                    it = LCT_pending.erase(it);
+                else ++it;
+            }
+        }
         mtx_pgo_.lock();
         auto start = std::chrono::system_clock::now();
-        if (addOdomFactor())   // when a new key frame appears (addOdomFactor == true), do some thing
+        const bool new_odom = addOdomFactor();
+        const bool pending = !loopclosure_pending.empty() || !interT_pending.empty() || !LCT_pending.empty();
+        if (!keyframes_.empty() && (new_odom || pending))
         {
-            while (!loopclosure_buf_.empty() && !just_loop_closure)
+            while (!loopclosure_pending.empty() && !just_loop_closure)
             {
-                auto &lc_msg = loopclosure_buf_.front();            // loopclosure_buf_ contain a LC info: index pair & icp tranformation
+                auto &lc_msg = loopclosure_pending.front();            // loopclosure_pending contain a LC info: index pair & icp tranformation
                 const int prev_node_idx = lc_msg->covariance[1];
                 const int curr_node_idx = lc_msg->covariance[0];
                 opt_debug_file << "Detected LC: " << prev_node_idx << " " << curr_node_idx << std::endl;
@@ -1331,13 +1365,13 @@ if (multisession_mode == 1)
                     opt_debug_file <<  "[FPR]: overlap ratio is " << overlap_score << std::endl;
                     std::cout      <<  "[FPR]: overlap ratio is " << overlap_score << std::endl;
                 }
-                loopclosure_buf_.pop_front();
+                loopclosure_pending.pop_front();
 
 #ifndef robust_estimator
                 if (overlap_score < overlap_score_thr)             // check LC cloud pair overlap ratio
                 {
                     opt_debug_file <<  "[FPR]: reject, too small overlap." << std::endl;
-                    removeLC(curr_node_idx, prev_node_idx);
+                    removeLC(curr_node_idx, prev_node_idx, LCT_pending);
                     continue;
                 }
 
@@ -1354,7 +1388,7 @@ if (multisession_mode == 1)
                     opt_debug_file <<  "x_range: " << x_range << " y_range: " << y_range << " z_range: " << z_range << std::endl;
                     if (lc_transform.translation().norm() > 0.5*std::max(std::max(x_range, y_range),z_range))   // TODO: how to verify unexpected large jump LC
                     {
-                        removeLC(curr_node_idx, prev_node_idx);
+                        removeLC(curr_node_idx, prev_node_idx, LCT_pending);
                         continue;
                     }
                     wait_1more_loopclosure = true;
@@ -1392,13 +1426,14 @@ if (multisession_mode == 1)
 
                 // loop closure tri constraint
                 int lc_count = 0;
-                opt_debug_file << "LC KPF queue size is " << LCT_buf_.size() << " now." << std::endl;
-                std::deque<sensor_msgs::PointCloud2ConstPtr> LCT_buf_tmp;
-                while (!LCT_buf_.empty())   // iterate over LC KP messgage buffer
+                opt_debug_file << "LC KPF queue size is " << LCT_pending.size() << " now." << std::endl;
+                std::deque<sensor_msgs::PointCloud2ConstPtr> LCT_pendingtmp;
+                while (!LCT_pending.empty())   // iterate over LC KP messgage buffer
                 {
-                    auto LCTmsg = LCT_buf_.front();
+                    auto LCTmsg = LCT_pending.front();
                     pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>());
                     pcl::fromROSMsg(*(LCTmsg), *cloud_tmp);
+                    if (cloud_tmp->size() < 2) { LCT_pending.pop_front(); continue; }
                     int prev_idx_lct = cloud_tmp->points[0].intensity;
                     int curr_idx_lct = cloud_tmp->points[1].intensity;
 
@@ -1409,7 +1444,7 @@ if (multisession_mode == 1)
                         opt_debug_file <<  "Loop clousre KP factor ahead odom factor!" << std::endl;
                         break;
                     }
-                    LCT_buf_.pop_front();
+                    LCT_pending.pop_front();
                     VOXEL_LOC position2; position2.x = (int)(prev_idx_lct),position2.y = (int)(curr_idx_lct),position2.z = (int)(0);
                     if (lc_pose_uomap.find(position2) != lc_pose_uomap.end())    // if a detected LC pass senatation check, e.g., overlap check,
                     {                                                            // you can find it from the containner
@@ -1451,26 +1486,49 @@ else
                     }
                     else
                     {
-                        LCT_buf_tmp.push_back(LCTmsg);
+                        LCT_pendingtmp.push_back(LCTmsg);
                         opt_debug_file <<  "Skip." << std::endl;
                     }
                 }
-                LCT_buf_ = LCT_buf_tmp;
-                opt_debug_file << "LC KPF queue size is " << LCT_buf_.size() << " now." << std::endl;
+                LCT_pending = LCT_pendingtmp;
+                opt_debug_file << "LC KPF queue size is " << LCT_pending.size() << " now." << std::endl;
             }
 
-            while(!interT_buf_.empty())
+            // ROS topics are independent: triangle pairs can arrive after
+            // their LC transformation. Consume them even without another LC.
+            if (!wait_1more_loopclosure && lc_pose_uomap.size() >= 2) {
+                for (auto it = LCT_pending.begin(); it != LCT_pending.end();) {
+                    pcl::PointCloud<PointType>::Ptr cloud(new pcl::PointCloud<PointType>());
+                    pcl::fromROSMsg(**it, *cloud);
+                    if (cloud->size() < 2) { it = LCT_pending.erase(it); continue; }
+                    const int previous = int((*cloud)[0].intensity);
+                    const int current = int((*cloud)[1].intensity);
+                    VOXEL_LOC pair; pair.x = previous; pair.y = current; pair.z = 0;
+                    if (current >= 0 && current < int(keyframes_.size()) &&
+                        lc_pose_uomap.find(pair) != lc_pose_uomap.end()) {
+#ifndef robust_estimator
+                        insertKPPairConstraint(cloud, previous, current, 2);
+#endif
+                        just_loop_closure = true;
+                        it = LCT_pending.erase(it);
+                        opt_debug_file << "[Late LC KPF]: " << previous << " " << current << std::endl;
+                    } else ++it;
+                }
+            }
+
+            while(!interT_pending.empty())
             {
-                auto interT_front = interT_buf_.front();
+                auto interT_front = interT_pending.front();
                 pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>());
                 pcl::fromROSMsg(*(interT_front), *cloud_tmp);
+                if (cloud_tmp->size() < 2) { interT_pending.pop_front(); continue; }
                 const int prev_node_idx = cloud_tmp->points[0].intensity;
                 const int curr_node_idx = cloud_tmp->points[1].intensity;
 
                 if (cloud_tmp->points[0].x == 0 && cloud_tmp->points[0].y == 0 && cloud_tmp->points[0].z == 0 &&
                     cloud_tmp->points[1].x == 0 && cloud_tmp->points[1].y == 0 && cloud_tmp->points[1].z == 0)    // invalid Adj. KP factor message
                 {
-                    interT_buf_.pop_front();
+                    interT_pending.pop_front();
                     opt_debug_file <<  "[Add Adjacent KPF]: adjacent KP factor absent! False Positive Rejection might not work due to this." << std::endl;
 //                    ROS_WARN_STREAM("Adjacent KP factor absent! False Positive Rejection might not work due to this.");
                     continue;
@@ -1485,11 +1543,11 @@ else
 #ifndef robust_estimator
                 insertKPPairConstraint(cloud_tmp, prev_node_idx, curr_node_idx, 1);
 #endif
-                interT_buf_.pop_front();
+                interT_pending.pop_front();
             }
-//            while(!inter2T_buf_.empty())
+//            while(!inter2T_pending.empty())
 //            {
-//                auto inter2T_front = inter2T_buf_.front();
+//                auto inter2T_front = inter2T_pending.front();
 //                pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>());
 //                pcl::fromROSMsg(*(inter2T_front), *cloud_tmp);
 //                const int prev_node_idx = cloud_tmp->points[0].intensity;
@@ -1498,7 +1556,7 @@ else
 //                if (cloud_tmp->points[0].x == 0 && cloud_tmp->points[0].y == 0 && cloud_tmp->points[0].z == 0 &&
 //                    cloud_tmp->points[1].x == 0 && cloud_tmp->points[1].y == 0 && cloud_tmp->points[1].z == 0)
 //                {
-//                    inter2T_buf_.pop_front();
+//                    inter2T_pending.pop_front();
 //                    continue;
 //                }
 
@@ -1510,7 +1568,7 @@ else
 //    #ifndef robust_estimator
 //                insertKPPairConstraint(cloud_tmp, prev_node_idx, curr_node_idx, 1);
 //    #endif
-//                inter2T_buf_.pop_front();
+//                inter2T_pending.pop_front();
 //            }
 
 if (multisession_mode == 1)
@@ -1528,73 +1586,82 @@ else
         std::chrono::duration<double, std::milli> elapsed_ms = std::chrono::duration<double,std::milli>(end - start);
         time_full_pgo_thread << elapsed_ms.count() << std::endl;
         mtx_pgo_.unlock();
+        {
+            std::lock_guard<std::mutex> lock(mtx_sub_);
+            loopclosure_buf_.insert(loopclosure_buf_.begin(), loopclosure_pending.begin(), loopclosure_pending.end());
+            interT_buf_.insert(interT_buf_.begin(), interT_pending.begin(), interT_pending.end());
+            LCT_buf_.insert(LCT_buf_.begin(), LCT_pending.begin(), LCT_pending.end());
+        }
     }
 }
 
-pcl::PointCloud<PointType> fullMapToSave;
-int loop_corr_counter_last = 0;
+std::mutex map_export_mutex;
+int loop_corr_counter_last = -1;
+size_t map_export_keyframes = 0;
 void pubAndSaveGloablMap(bool savemap = true)
 {
-    if (keyframes_.empty())  return;
-    if (loop_corr_counter == loop_corr_counter_last) return;
-    if (!fullMapToSave.empty())      pcl::PointCloud<PointType> ().swap(fullMapToSave);
-    mtx_keyf_read_.lock();
-    auto keyframes = keyframes_;
-    mtx_keyf_read_.unlock();
-    for (int node_idx=0; node_idx < keyframes.size(); node_idx++)
+    std::lock_guard<std::mutex> export_lock(map_export_mutex);
+    std::deque<KeyFrame> snapshot;
+    int loop_count;
     {
-        if (!keyframes_[node_idx].pose_opt_set) continue;
-        gtsam::Pose3 T1 = Pose6DToGTSPose(keyframes[node_idx].KeyPose).inverse();
-        gtsam::Pose3 T2 = Pose6DToGTSPose(keyframes[node_idx].KeyPoseOpt).inverse();
-        gtsam::Pose3 _2T1_ = T2.between(T1);
+        // main_pgo appends under mtx_sub_ and optimizes under mtx_pgo_.
+        // Acquire both without imposing a conflicting lock order.
+        std::unique_lock<std::mutex> pgo_lock(mtx_pgo_, std::defer_lock);
+        std::unique_lock<std::mutex> sub_lock(mtx_sub_, std::defer_lock);
+        std::lock(pgo_lock, sub_lock);
+        snapshot = keyframes_;
+        loop_count = loop_corr_counter;
+    }
+    if (snapshot.empty()) return;
+    size_t valid_frames = 0;
+    for (const auto &frame : snapshot) if (frame.pose_opt_set) ++valid_frames;
+    if (!savemap && loop_count == loop_corr_counter_last &&
+        valid_frames == map_export_keyframes) return;
 
-        if (keyframes[node_idx].KeyCloud->empty())    continue;
-        //DownsampleCloud(keyframes_[node_idx].KeyCloud, 0.2);
-        //pcl::PointCloud<PointType>::Ptr tmpToSave (new pcl::PointCloud<PointType>);
-        //pcl::transformPointCloud(*(keyframes_[node_idx].KeyCloud), *tmpToSave, GTSPoseToEigenM4f(_2T1_));
-        auto Rt = GTSPoseToEigenM4f(_2T1_);
-        Eigen::Matrix3f R = Rt.block<3,3>(0,0);
-        Eigen::Vector3f t = Eigen::Vector3f(Rt(0,3), Rt(1,3), Rt(2,3));
-        int pt_skip = max(1, int(pcdsave_step));
-        for (size_t pidx = 0; pidx < keyframes[node_idx].KeyCloud->points.size(); pidx += pt_skip)
+    pcl::PointCloud<PointType> map;
+    const int pt_skip = std::max(1, int(pcdsave_step));
+    for (const auto &frame : snapshot)
+    {
+        if (!frame.pose_opt_set || !frame.KeyCloud || frame.KeyCloud->empty()) continue;
+        const auto correction = Pose6DToGTSPose(frame.KeyPoseOpt) *
+                                Pose6DToGTSPose(frame.KeyPose).inverse();
+        const auto Rt = GTSPoseToEigenM4f(correction);
+        const Eigen::Matrix3f R = Rt.block<3,3>(0,0);
+        const Eigen::Vector3f t = Rt.block<3,1>(0,3);
+        for (size_t i = 0; i < frame.KeyCloud->size(); i += pt_skip)
         {
-            auto a_pt = keyframes_[node_idx].KeyCloud->points[pidx];
-            Eigen::Vector3f xyz_cor = R * Eigen::Vector3f(a_pt.x, a_pt.y, a_pt.z) + t;
-            PointType a_pt_cor; a_pt_cor.x = xyz_cor(0); a_pt_cor.y = xyz_cor(1); a_pt_cor.z = xyz_cor(2);
-            fullMapToSave.push_back(a_pt_cor);
+            const auto &p = frame.KeyCloud->points[i];
+            const Eigen::Vector3f xyz = R * Eigen::Vector3f(p.x,p.y,p.z) + t;
+            if (!xyz.allFinite()) continue;
+            PointType q = p;
+            q.x=xyz.x(); q.y=xyz.y(); q.z=xyz.z();
+            map.push_back(q);
         }
-        std::cout      << "Correcting submap " << node_idx << ", total map size: " << fullMapToSave.size() << std::endl;
-        opt_debug_file << "Correcting submap " << node_idx << ", total map size: " << fullMapToSave.size() << std::endl;
     }
-    if (fullMapToSave.empty()) return;
-    //DownsampleCloud(fullMapToSave, 0.5); // !!!be careful about resolution, too small will cause memory bug or ros message error.
-    sensor_msgs::PointCloud2 laserCloudMapPGOMsg;
-    pcl::toROSMsg(fullMapToSave, laserCloudMapPGOMsg);
-    laserCloudMapPGOMsg.header.frame_id = "/camera_init";
-    if (pubAndSaveGloablMapAftPGO.getNumSubscribers() != 0)
-        pubAndSaveGloablMapAftPGO.publish(laserCloudMapPGOMsg);
-    ros::spinOnce();
-    loop_corr_counter_last = loop_corr_counter;
-
-//#ifdef save_pcd
-    if (!fullMapToSave.empty() && savemap)
+    if (map.empty()) return;
+    sensor_msgs::PointCloud2 msg;
+    pcl::toROSMsg(map, msg);
+    msg.header.frame_id = "camera_init";
+    msg.header.stamp = snapshot.back().KeyTime;
+    pubAndSaveGloablMapAftPGO.publish(msg);
+    loop_corr_counter_last = loop_count;
+    map_export_keyframes = valid_frames;
+    if (savemap)
     {
-        opt_debug_file << "[SaveMap]: try saving full corrected map." << std::endl;
-        pcl::io::savePCDFileBinary(save_directory + "cloud_result.pcd", fullMapToSave);
-        opt_debug_file << "[SaveMap]: result map saved as cloud_result.pcd with size: " << fullMapToSave.size() << std::endl;
-        std::cout << "[SaveMap]: result map saved as " << save_directory << "cloud_result.pcd with size: " << fullMapToSave.size() << std::endl;
+        const auto filename = save_directory + "cloud_result.pcd";
+        const int status = pcl::io::savePCDFileBinary(filename, map);
+        if (status == 0) ROS_INFO_STREAM("Saved backend map: " << filename << " points=" << map.size());
+        else ROS_ERROR_STREAM("Could not save backend map: " << filename);
     }
-//#endif
-
 }
 
 void processRvizMap(void)
 {
     if (!dopub_corrmap) return;
-    while(1)
+    while(ros::ok())
     {
         sleep(1);
-        pubAndSaveGloablMap(false);
+        if (ros::ok()) pubAndSaveGloablMap(false);
     }
 }
 
@@ -1774,7 +1841,7 @@ if (multisession_mode == 1)
     std::thread pose_graph_optimization {main_pgo};
     std::thread map_viz {processRvizMap};
 
-    ros::Rate rate(5000);
+    ros::Rate rate(100);
     while(ros::ok())
     {
         rate.sleep();
@@ -1810,10 +1877,10 @@ if (multisession_mode == 2)
         }
     }
 
+    // Finish workers before closing shared outputs or exporting the final map.
+    if (pose_graph_optimization.joinable()) pose_graph_optimization.join();
+    if (map_viz.joinable()) map_viz.join();
     pubAndSaveGloablMap();
-
-    pose_graph_optimization.detach();
-    map_viz.detach();
     poses_raw_file.close();
     poses_opt_file.close();
     lc_file.close();

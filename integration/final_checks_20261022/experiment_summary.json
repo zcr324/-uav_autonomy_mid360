@@ -1,0 +1,465 @@
+[
+  {
+    "run": "20261022_000551",
+    "experiment": "baseline",
+    "mode": "baseline",
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 569,
+      "max_truth_error": 0.21796485358630646,
+      "rmse_truth_error": 0.21446112913273863,
+      "truth_path_length": 7.417726211090095e-06
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_000551",
+    "experiment": "long",
+    "mode": "flight",
+    "success": false,
+    "error": "Waypoint 1 timeout, map error 6.153m",
+    "arrival": null,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 1291,
+      "max_truth_error": 0.37430936286109173,
+      "rmse_truth_error": 0.191988457179219,
+      "truth_path_length": 8.850665671763817
+    },
+    "reached": 1,
+    "loops": 0
+  },
+  {
+    "run": "20261022_000551",
+    "experiment": "multi",
+    "mode": "flight",
+    "success": false,
+    "error": "Required flight/evaluation stream stale for >2 wall seconds",
+    "arrival": null,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 991,
+      "max_truth_error": 0.28028054956944887,
+      "rmse_truth_error": 0.2019483954524264,
+      "truth_path_length": 7.820536097486062
+    },
+    "reached": 2,
+    "loops": 0
+  },
+  {
+    "run": "20261022_000551",
+    "experiment": "multi_retry",
+    "mode": "flight",
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 1958,
+      "max_truth_error": 0.3791266596235776,
+      "rmse_truth_error": 0.1738554068579914,
+      "truth_path_length": 26.53502568261143
+    },
+    "reached": 5,
+    "loops": 0
+  },
+  {
+    "run": "20261022_000551",
+    "experiment": "short",
+    "mode": "flight",
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 471,
+      "max_truth_error": 0.29010912612638423,
+      "rmse_truth_error": 0.22136916612061233,
+      "truth_path_length": 3.8668090911294897
+    },
+    "reached": 2,
+    "loops": 0
+  },
+  {
+    "run": "20261022_003158",
+    "experiment": "backend_capture",
+    "mode": null,
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": null,
+    "metrics": null,
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_003158",
+    "experiment": "baseline",
+    "mode": "baseline",
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 483,
+      "max_truth_error": 0.09483501254037942,
+      "rmse_truth_error": 0.09196330342986316,
+      "truth_path_length": 7.448743208919153e-06
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_003158",
+    "experiment": "baseline_clock_race",
+    "mode": "baseline",
+    "success": false,
+    "error": "Static localization gate failed (>0.5m displacement or truth error)",
+    "arrival": null,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 396,
+      "max_truth_error": null,
+      "rmse_truth_error": null,
+      "truth_path_length": 6.404712954040119e-06
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_003158",
+    "experiment": "long",
+    "mode": "flight",
+    "success": false,
+    "error": "Waypoint 1 timeout, map error 0.329m",
+    "arrival": null,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 1264,
+      "max_truth_error": 0.24388822824084957,
+      "rmse_truth_error": 0.1404197988630709,
+      "truth_path_length": 13.883975992368592
+    },
+    "reached": 1,
+    "loops": 0
+  },
+  {
+    "run": "20261022_003158",
+    "experiment": "long_navigation",
+    "mode": "flight",
+    "success": false,
+    "error": "Waypoint 2 timeout, map error 0.933m",
+    "arrival": 0.5,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 1691,
+      "max_truth_error": 0.6466508192906614,
+      "rmse_truth_error": 0.30147145854412866,
+      "truth_path_length": 21.163515316362655
+    },
+    "reached": 2,
+    "loops": 0
+  },
+  {
+    "run": "20261022_004609",
+    "experiment": "backend_capture",
+    "mode": null,
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": null,
+    "metrics": null,
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_004609",
+    "experiment": "baseline",
+    "mode": "baseline",
+    "success": true,
+    "error": null,
+    "arrival": 0.3,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 521,
+      "max_truth_error": 0.20766039178495005,
+      "rmse_truth_error": 0.18835406971814442,
+      "truth_path_length": 8.514953696883266e-06
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_004609",
+    "experiment": "obstacle",
+    "mode": "flight",
+    "success": false,
+    "error": "Takeoff failed; see takeoff.log",
+    "arrival": 0.5,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 980,
+      "max_truth_error": 0.2183090237396454,
+      "rmse_truth_error": 0.21386426276296683,
+      "truth_path_length": 1.5927459132946772e-05
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_004609",
+    "experiment": "obstacle_retry",
+    "mode": "flight",
+    "success": true,
+    "error": null,
+    "arrival": 0.5,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 999,
+      "max_truth_error": 0.2697249327178063,
+      "rmse_truth_error": 0.22956829509777496,
+      "truth_path_length": 13.760802725378534
+    },
+    "reached": 2,
+    "loops": 0
+  },
+  {
+    "run": "20261022_005341",
+    "experiment": "baseline",
+    "mode": "baseline",
+    "success": true,
+    "error": null,
+    "arrival": 0.3,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 605,
+      "max_truth_error": 0.11241644562144457,
+      "rmse_truth_error": 0.09616200403626841,
+      "truth_path_length": 4.641978063971446e-07
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_005919",
+    "experiment": "backend_capture",
+    "mode": null,
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": null,
+    "metrics": null,
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_005919",
+    "experiment": "baseline",
+    "mode": "baseline",
+    "success": true,
+    "error": null,
+    "arrival": 0.3,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 585,
+      "max_truth_error": 0.1359640791246929,
+      "rmse_truth_error": 0.11438045289686047,
+      "truth_path_length": 4.608414293947699e-07
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_005919",
+    "experiment": "loop",
+    "mode": "flight",
+    "success": false,
+    "error": "Waypoint 0 truth error 0.554m exceeds navigation tolerance 0.500m",
+    "arrival": 0.5,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 661,
+      "max_truth_error": 0.19733083106864213,
+      "rmse_truth_error": 0.13652549173950485,
+      "truth_path_length": 7.94472317351857
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_005919",
+    "experiment": "loop_retry",
+    "mode": "flight",
+    "success": false,
+    "error": "LIO world error 1.623m exceeds 1.000m for >1s",
+    "arrival": 0.5,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 3740,
+      "max_truth_error": 70.38953508104962,
+      "rmse_truth_error": 12.466424429893507,
+      "truth_path_length": 55.55343160025374
+    },
+    "reached": 7,
+    "loops": 0
+  },
+  {
+    "run": "20261022_011915",
+    "experiment": "backend_capture",
+    "mode": null,
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": null,
+    "metrics": null,
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_011915",
+    "experiment": "baseline",
+    "mode": "baseline",
+    "success": true,
+    "error": null,
+    "arrival": 0.3,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 714,
+      "max_truth_error": 0.08799031849983584,
+      "rmse_truth_error": 0.07371353931464032,
+      "truth_path_length": 4.454821632099413e-07
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_011915",
+    "experiment": "loop_featured",
+    "mode": "flight",
+    "success": true,
+    "error": null,
+    "arrival": 0.5,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 4971,
+      "max_truth_error": 0.6071329008120961,
+      "rmse_truth_error": 0.3412886433361592,
+      "truth_path_length": 63.71047441654821
+    },
+    "reached": 9,
+    "loops": 2
+  },
+  {
+    "run": "20261022_014950",
+    "experiment": "backend_capture",
+    "mode": null,
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": null,
+    "metrics": null,
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_014950",
+    "experiment": "baseline",
+    "mode": "baseline",
+    "success": true,
+    "error": null,
+    "arrival": 0.3,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 505,
+      "max_truth_error": 0.21354235415537623,
+      "rmse_truth_error": 0.1896806639497618,
+      "truth_path_length": 8.304117306816447e-06
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_014950",
+    "experiment": "obstacle",
+    "mode": "flight",
+    "success": true,
+    "error": null,
+    "arrival": 0.5,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 933,
+      "max_truth_error": 0.27424646384592566,
+      "rmse_truth_error": 0.23677941462135457,
+      "truth_path_length": 12.846596112209534
+    },
+    "reached": 2,
+    "loops": 0
+  },
+  {
+    "run": "20261022_014950",
+    "experiment": "obstacle_repeat",
+    "mode": "flight",
+    "success": true,
+    "error": null,
+    "arrival": 0.5,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 830,
+      "max_truth_error": 0.29897090485684363,
+      "rmse_truth_error": 0.2333713218556264,
+      "truth_path_length": 11.753975428977045
+    },
+    "reached": 2,
+    "loops": 0
+  },
+  {
+    "run": "20261022_015945",
+    "experiment": "backend_capture",
+    "mode": null,
+    "success": true,
+    "error": null,
+    "arrival": null,
+    "landed_disarmed": null,
+    "metrics": null,
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_015945",
+    "experiment": "baseline",
+    "mode": "baseline",
+    "success": true,
+    "error": null,
+    "arrival": 0.3,
+    "landed_disarmed": null,
+    "metrics": {
+      "samples": 651,
+      "max_truth_error": 0.08728379803191358,
+      "rmse_truth_error": 0.07303633812150515,
+      "truth_path_length": 4.3761636617688724e-07
+    },
+    "reached": 0,
+    "loops": 0
+  },
+  {
+    "run": "20261022_015945",
+    "experiment": "loop_with_scans",
+    "mode": "flight",
+    "success": false,
+    "error": "Waypoint 6 timeout, map error 0.047m, truth error 0.640m",
+    "arrival": 0.5,
+    "landed_disarmed": true,
+    "metrics": {
+      "samples": 5464,
+      "max_truth_error": 0.7161673726502685,
+      "rmse_truth_error": 0.38205735786942757,
+      "truth_path_length": 45.54205066250322
+    },
+    "reached": 6,
+    "loops": 0
+  }
+]

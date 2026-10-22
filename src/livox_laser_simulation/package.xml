@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>livox_laser_simulation</name>
+  <version>0.1.0</version>
+  <description>Gazebo Livox Mid-360 simulation plugin with livox_ros_driver2 CustomMsg output.</description>
+
+  <maintainer email="sitp@example.com">sitp</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>roslib</depend>
+  <depend>sensor_msgs</depend>
+  <depend>pcl_conversions</depend>
+  <depend>tf</depend>
+  <depend>livox_ros_driver2</depend>
+
+  <build_depend>gazebo_dev</build_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+
+  <export>
+    <gazebo_ros plugin_path="${prefix}/../../lib"/>
+  </export>
+</package>

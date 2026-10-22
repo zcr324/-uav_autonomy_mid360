@@ -1,0 +1,65 @@
+Panels:
+  - Class: rviz/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 35; 35; 35
+    Fixed Frame: camera_init
+    Frame Rate: 20
+  Displays:
+    - Class: rviz/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 1
+      Plane Cell Count: 40
+    - Class: rviz/PointCloud2
+      Name: Frontend scans
+      Enabled: true
+      Topic: /cloud_registered
+      Queue Size: 2
+      Decay Time: 15
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: AxisColor
+      Axis: Z
+    - Class: rviz/PointCloud2
+      Name: Backend map
+      Enabled: true
+      Topic: /aft_pgo_map
+      Queue Size: 1
+      Style: Points
+      Size (Pixels): 3
+      Color Transformer: FlatColor
+      Color: 60; 210; 120
+    - Class: rviz/Path
+      Name: Frontend trajectory
+      Enabled: true
+      Topic: /path
+      Color: 70; 150; 255
+      Buffer Length: 1
+      Line Style: Lines
+      Line Width: 0.03
+    - Class: rviz/Path
+      Name: Backend trajectory
+      Enabled: true
+      Topic: /aft_pgo_path
+      Color: 255; 150; 40
+      Buffer Length: 1
+      Line Style: Lines
+      Line Width: 0.05
+    - Class: rviz/Marker
+      Name: Accepted loop constraints
+      Enabled: true
+      Marker Topic: /loopclosure
+      Queue Size: 10
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 30
+      Pitch: 0.7
+      Yaw: 0.8
+      Focal Point: {X: 0, Y: 0, Z: 0}
+Window Geometry:
+  Width: 1200
+  Height: 800

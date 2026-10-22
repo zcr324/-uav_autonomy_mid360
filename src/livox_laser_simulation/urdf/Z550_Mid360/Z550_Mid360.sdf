@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="ZD550_Mid360">
+    <include>
+      <uri>model://Z550</uri>
+    </include>
+    <include>
+      <uri>model://Mid360</uri>
+      <pose>0 0 0.3367 0 0 0</pose>
+    </include>
+    <joint name="3Dlidar_joint" type="revolute">
+      <child>Mid360::livox_base</child>
+      <parent>Z550::base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+  </model>
+</sdf>
